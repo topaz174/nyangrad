@@ -209,7 +209,7 @@ class Dropout(Module):
     def forward(self, x: Tensor) -> Tensor:
         ### BEGIN YOUR SOLUTION
         if self.training:
-            mask = Tensor(np.random.choice([0, 1], size=x.shape, p=[self.p, 1-self.p]))
+            mask = Tensor(np.random.choice([0.0, 1.0], size=x.shape, p=[self.p, 1-self.p]))
             x.data = x.data * mask.data
             x /= 1 - self.p
 
