@@ -25,7 +25,15 @@ class SGD(Optimizer):
 
     def step(self):
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+        for param in self.params:
+            grad_decay = param.grad.data + self.weight_decay * param.data
+
+            if param not in self.u:
+                self.u[param] = (1 - self.momentum) * grad_decay
+            else:
+                self.u[param].data = self.momentum * self.u[param].data + (1 - self.momentum) * grad_decay
+
+            param.data -= self.lr * self.u[param].data
         ### END YOUR SOLUTION
 
     def clip_grad_norm(self, max_norm=0.25):
@@ -61,5 +69,24 @@ class Adam(Optimizer):
 
     def step(self):
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+        self.t += 1
+
+        for param in self.params:
+            grad_decay = param.grad.data + self.weight_decay * param.data
+
+            if param not in self.m:
+                self.m[param] = (1 - self.beta1) * grad_decay.data
+            else:
+                self.m[param].data = self.beta1 * self.m[param].data + (1 - self.beta1) * grad_decay.data
+
+            if param not in self.v:
+                self.v[param] = (1 - self.beta2) * (grad_decay.data ** 2)
+            else:
+                self.v[param].data = self.beta2 * self.v[param].data + (1 - self.beta2) * (grad_decay.data ** 2)
+
+            m_bias = self.m[param].data / (1 - self.beta1 ** self.t)
+            v_bias = self.v[param].data / (1 - self.beta2 ** self.t)
+
+            param.data = param.data - self.lr * m_bias / (v_bias ** 0.5 + self.eps)
+
         ### END YOUR SOLUTION

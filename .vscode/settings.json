@@ -1,18 +1,7 @@
 {
-    "python.analysis.exclude": [
-        "**/tests/**/*.py",
-        "**/data/**"
-    ],
     "files.exclude": {
         "**/.git": true,
         "**/__pycache__": true,
-        "**/.pytest_cache": true,
-        "**/data/*.gz": true,
-        "**/data/*.ubyte": true
-    },
-    "search.exclude": {
-        "**/data/**": true,
-        "**/tests/**": true
-    },
-    "git.autorefresh": false
+        "**/.pytest_cache": true
+    }
 }

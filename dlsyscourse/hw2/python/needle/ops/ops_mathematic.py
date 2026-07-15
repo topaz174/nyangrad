@@ -95,7 +95,7 @@ class PowerScalar(TensorOp):
 
     def compute(self, a: NDArray) -> NDArray:
         ### BEGIN YOUR SOLUTION
-        return a ** self.scalar
+        return (a ** self.scalar).astype("float32")
         ### END YOUR SOLUTION
 
     def gradient(self, out_grad, node):
@@ -114,7 +114,7 @@ class EWiseDiv(TensorOp):
 
     def compute(self, a, b):
         ### BEGIN YOUR SOLUTION
-        return a / b
+        return (a / b).astype("float32")
         ### END YOUR SOLUTION
 
     def gradient(self, out_grad, node):
@@ -357,9 +357,9 @@ class ReLU(TensorOp):
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
         node_numpy = node.numpy()
-        node_grad_numpy = (node_numpy > 0).astype(float)
+        node_grad_numpy = (node_numpy > 0).astype(numpy.float32)
 
-        node_grad = Tensor(node_grad_numpy)
+        node_grad = Tensor(node_grad_numpy, dtype="float32")
 
         return out_grad * node_grad
         ### END YOUR SOLUTION

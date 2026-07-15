@@ -170,10 +170,12 @@ class BatchNorm1d(Module):
             norm = (x - mean_b) / ((var_b + self.eps) ** (1/2))
 
         else:
-            norm = (x - self.running_mean) / ((self.running_var + self.eps) ** (1/2))
+            norm = (x - self.running_mean.broadcast_to((m, d))) / ((self.running_var.broadcast_to((m, d)) + self.eps) ** (1/2))
 
 
-        return self.weight * norm + self.bias
+        w_b = self.weight.reshape((1, d)).broadcast_to((m, d))
+        b_b = self.bias.reshape((1, d)).broadcast_to((m, d))
+        return w_b * norm + b_b
         ### END YOUR SOLUTION
 
 
@@ -197,7 +199,9 @@ class LayerNorm1d(Module):
 
         norm = (x - mean) / ((var + self.eps) ** (1/2))
 
-        return self.weight * norm + self.bias
+        w_b = self.weight.reshape((1, d)).broadcast_to((m, d))
+        b_b = self.bias.reshape((1, d)).broadcast_to((m, d))
+        return w_b * norm + b_b
         ### END YOUR SOLUTION
 
 
@@ -209,9 +213,11 @@ class Dropout(Module):
     def forward(self, x: Tensor) -> Tensor:
         ### BEGIN YOUR SOLUTION
         if self.training:
-            mask = Tensor(np.random.choice([0.0, 1.0], size=x.shape, p=[self.p, 1-self.p]))
-            x.data = x.data * mask.data
-            x /= 1 - self.p
+            mask = init.randb(*x.shape, p=self.p)
+
+            x = x * mask
+
+            x /= 1.0 - self.p
 
         return x
         ### END YOUR SOLUTION
@@ -224,5 +230,5 @@ class Residual(Module):
 
     def forward(self, x: Tensor) -> Tensor:
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+        return self.fn(x) + x
         ### END YOUR SOLUTION
