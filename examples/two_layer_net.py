@@ -1,13 +1,9 @@
-"""hw1/apps/simple_ml.py"""
-
-import struct
 import gzip
+import struct
+
 import numpy as np
 
-import sys
-
-sys.path.append("python/")
-import needle as ndl
+import nyangrad as ndl
 
 
 
@@ -33,7 +29,6 @@ def parse_mnist(image_filename, label_filename):
                 labels of the examples.  Values should be of type np.int8 and
                 for MNIST will contain the values 0-9.
     """
-    ### BEGIN YOUR SOLUTION
     with gzip.open(image_filename, 'rb') as f:
         header = f.read(16)
         magic, nums, rows, cols = struct.unpack('>IIII', header)
@@ -51,7 +46,6 @@ def parse_mnist(image_filename, label_filename):
         y = np.frombuffer(data, dtype=np.uint8)
 
     return X,y
-    ### END YOUR SOLUTION
 
 
 def softmax_loss(Z, y_one_hot):
@@ -70,7 +64,6 @@ def softmax_loss(Z, y_one_hot):
     Returns:
         Average softmax loss over the sample. (ndl.Tensor[np.float32])
     """
-    ### BEGIN YOUR SOLUTION
     Z_correct = Z * y_one_hot
     Z_correct_summed = Z_correct.sum(axes=1)
 
@@ -84,7 +77,6 @@ def softmax_loss(Z, y_one_hot):
     avg_loss = diff_sum / size
 
     return avg_loss
-    ### END YOUR SOLUTION
 
 
 def nn_epoch(X, y, W1, W2, lr=0.1, batch=100):
@@ -111,7 +103,6 @@ def nn_epoch(X, y, W1, W2, lr=0.1, batch=100):
             W2: ndl.Tensor[np.float32]
     """
 
-    ### BEGIN YOUR SOLUTION
 
     m = X.shape[0]
     k = W2.shape[1]
@@ -143,7 +134,6 @@ def nn_epoch(X, y, W1, W2, lr=0.1, batch=100):
 
     return (W1, W2)
 
-    ### END YOUR SOLUTION
 
 
 ### CODE BELOW IS FOR ILLUSTRATION, YOU DO NOT NEED TO EDIT

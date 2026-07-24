@@ -1,18 +1,12 @@
-import sys
-
-sys.path.append("../python")
-import needle as ndl
-import needle.nn as nn
 import numpy as np
-import time
-import os
+
+import nyangrad as ndl
+import nyangrad.nn as nn
 
 np.random.seed(0)
-# MY_DEVICE = ndl.backend_selection.cuda()
 
 
 def ResidualBlock(dim, hidden_dim, norm=nn.BatchNorm1d, drop_prob=0.1):
-    ### BEGIN YOUR SOLUTION
     lin_1 = nn.Linear(dim, hidden_dim)
     norm_1 = norm(hidden_dim)
     relu_1 = nn.ReLU()
@@ -25,7 +19,6 @@ def ResidualBlock(dim, hidden_dim, norm=nn.BatchNorm1d, drop_prob=0.1):
     res = nn.Residual(seq)
 
     return nn.Sequential(res, nn.ReLU())
-    ### END YOUR SOLUTION
 
 
 def MLPResNet(
@@ -36,7 +29,6 @@ def MLPResNet(
     norm=nn.BatchNorm1d,
     drop_prob=0.1,
 ):
-    ### BEGIN YOUR SOLUTION
     lin_1 = nn.Linear(dim, hidden_dim)
     relu_1 = nn.ReLU()
 
@@ -49,12 +41,10 @@ def MLPResNet(
     seq_list.append(lin_2)
 
     return nn.Sequential(*seq_list)
-    ### END YOUR SOLUTION
 
 
 def epoch(dataloader, model, opt=None):
     np.random.seed(4)
-    ### BEGIN YOUR SOLUTION
 
     smloss = nn.SoftmaxLoss()
     losses = []
@@ -83,7 +73,6 @@ def epoch(dataloader, model, opt=None):
     avg_loss = np.mean(losses)
     
     return err_rate, avg_loss
-    ### END YOUR SOLUTION
 
 
 def train_mnist(
@@ -96,7 +85,6 @@ def train_mnist(
     data_dir="data",
 ):
     np.random.seed(4)
-    ### BEGIN YOUR SOLUTION
     train_dset = nn.MNISTDataset(f"{data_dir}/train-images-idx3-ubyte.gz", 
                              f"{data_dir}/train-labels-idx1-ubyte.gz")
     test_dset = nn.MNISTDataset(f"{data_dir}/t10k-images-idx3-ubyte.gz",
@@ -115,8 +103,7 @@ def train_mnist(
     test_err, test_loss = epoch(test_dloader, resnet, None)
 
     return train_err, train_loss, test_err, test_loss
-    ### END YOUR SOLUTION
 
 
 if __name__ == "__main__":
-    train_mnist(data_dir="../data")
+    train_mnist(data_dir="data")
