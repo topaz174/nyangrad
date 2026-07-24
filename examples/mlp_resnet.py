@@ -57,6 +57,7 @@ def epoch(dataloader, model, opt=None):
         model.eval()
 
     for X, y in dataloader:
+        X = X.reshape((X.shape[0], -1))
         logits = model(X)
 
         wrong += (np.argmax(logits.numpy(), axis=1) != y.numpy()).sum()
@@ -85,17 +86,17 @@ def train_mnist(
     data_dir="data",
 ):
     np.random.seed(4)
-    train_dset = nn.MNISTDataset(f"{data_dir}/train-images-idx3-ubyte.gz", 
+    train_dset = ndl.data.MNISTDataset(f"{data_dir}/train-images-idx3-ubyte.gz", 
                              f"{data_dir}/train-labels-idx1-ubyte.gz")
-    test_dset = nn.MNISTDataset(f"{data_dir}/t10k-images-idx3-ubyte.gz",
+    test_dset = ndl.data.MNISTDataset(f"{data_dir}/t10k-images-idx3-ubyte.gz",
                             f"{data_dir}/t10k-labels-idx1-ubyte.gz")
 
     resnet = MLPResNet(28 * 28, hidden_dim=hidden_dim, num_classes=10)
 
     opt = optimizer(resnet.parameters(), lr=lr, weight_decay=weight_decay)
 
-    train_dloader = nn.DataLoader(train_dset, batch_size=batch_size, shuffle=True)
-    test_dloader = nn.DataLoader(test_dset, batch_size=batch_size)
+    train_dloader = ndl.data.DataLoader(train_dset, batch_size=batch_size, shuffle=True)
+    test_dloader = ndl.data.DataLoader(test_dset, batch_size=batch_size)
 
     for _ in range(epochs):
         train_err, train_loss = epoch(train_dloader, resnet, opt)
