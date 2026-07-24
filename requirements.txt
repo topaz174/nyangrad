@@ -1,0 +1,5 @@
+numpy>=1.23
+
+# used by the test suite for numerical gradient checking
+numdifftools>=0.9
+pytest>=7.0

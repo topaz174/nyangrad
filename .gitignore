@@ -1,0 +1,27 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+.eggs/
+build/
+dist/
+.Python
+.venv/
+venv/
+env/
+
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+.ipynb_checkpoints/
+.DS_Store
+.idea/
+.vscode/
+
+# course materials kept locally for reference, not published
+sandbox/course-materials/
+sandbox/warmup/data/
