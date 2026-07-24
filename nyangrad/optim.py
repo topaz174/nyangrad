@@ -1,5 +1,5 @@
 """Optimization module"""
-import needle as ndl
+import nyangrad as ndl
 import numpy as np
 
 
@@ -24,7 +24,6 @@ class SGD(Optimizer):
         self.weight_decay = weight_decay
 
     def step(self):
-        ### BEGIN YOUR SOLUTION
         for param in self.params:
             grad_decay = param.grad.data + self.weight_decay * param.data
 
@@ -34,16 +33,10 @@ class SGD(Optimizer):
                 self.u[param].data = self.momentum * self.u[param].data + (1 - self.momentum) * grad_decay
 
             param.data -= self.lr * self.u[param].data
-        ### END YOUR SOLUTION
 
     def clip_grad_norm(self, max_norm=0.25):
-        """
-        Clips gradient norm of parameters.
-        Note: This does not need to be implemented for HW2 and can be skipped.
-        """
-        ### BEGIN YOUR SOLUTION
+        """Clips gradient norm of parameters."""
         raise NotImplementedError()
-        ### END YOUR SOLUTION
 
 
 class Adam(Optimizer):
@@ -68,7 +61,6 @@ class Adam(Optimizer):
         self.v = {}
 
     def step(self):
-        ### BEGIN YOUR SOLUTION
         self.t += 1
 
         for param in self.params:
@@ -89,4 +81,3 @@ class Adam(Optimizer):
 
             param.data = param.data - self.lr * m_bias / (v_bias ** 0.5 + self.eps)
 
-        ### END YOUR SOLUTION

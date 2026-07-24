@@ -1,18 +1,14 @@
-"""Core data structures."""
-import needle
-from .backend_numpy import Device, cpu, all_devices
+"""Core data structures: the computational graph and reverse-mode autodiff engine."""
+import nyangrad
+from .backend import Device, cpu, all_devices
 from typing import List, Optional, NamedTuple, Tuple, Union, Dict
 from collections import namedtuple
 import numpy
 
-from needle import init
+from nyangrad import init
 
-# needle version
 LAZY_MODE = False
 TENSOR_COUNTER = 0
-
-# NOTE: we will import numpy as the array_api
-# as the backend for our computations, this line will change in later homeworks
 
 import numpy as array_api
 NDArray = numpy.ndarray
@@ -157,7 +153,6 @@ class Value:
         return value
 
 
-### Not needed in HW1
 class TensorTuple(Value):
     """Represent a tuple of tensors.
 
@@ -169,13 +164,13 @@ class TensorTuple(Value):
         return len(cdata)
 
     def __getitem__(self, index: int):
-        return needle.ops.tuple_get_item(self, index)
+        return nyangrad.ops.tuple_get_item(self, index)
 
     def tuple(self):
         return tuple([x for x in self])
 
     def __repr__(self):
-        return "needle.TensorTuple" + str(self.tuple())
+        return "nyangrad.TensorTuple" + str(self.tuple())
 
     def __str__(self):
         return self.__repr__()
@@ -183,7 +178,7 @@ class TensorTuple(Value):
     def __add__(self, other):
         assert isinstance(other, TensorTuple)
         assert len(self) == len(other)
-        return needle.ops.make_tuple(*[self[i] + other[i] for i in range(len(self))])
+        return nyangrad.ops.make_tuple(*[self[i] + other[i] for i in range(len(self))])
 
     def detach(self):
         """Create a new tensor that shares the data but detaches from the graph."""
@@ -296,7 +291,7 @@ class Tensor(Value):
         compute_gradient_of_variables(self, out_grad)
 
     def __repr__(self):
-        return "needle.Tensor(" + str(self.realize_cached_data()) + ")"
+        return "nyangrad.Tensor(" + str(self.realize_cached_data()) + ")"
 
     def __str__(self):
         return self.realize_cached_data().__str__()
@@ -309,54 +304,54 @@ class Tensor(Value):
 
     def __add__(self, other):
         if isinstance(other, Tensor):
-            return needle.ops.EWiseAdd()(self, other)
+            return nyangrad.ops.EWiseAdd()(self, other)
         else:
-            return needle.ops.AddScalar(other)(self)
+            return nyangrad.ops.AddScalar(other)(self)
 
     def __mul__(self, other):
         if isinstance(other, Tensor):
-            return needle.ops.EWiseMul()(self, other)
+            return nyangrad.ops.EWiseMul()(self, other)
         else:
-            return needle.ops.MulScalar(other)(self)
+            return nyangrad.ops.MulScalar(other)(self)
 
     def __pow__(self, other):
         if isinstance(other, Tensor):
-            return needle.ops.EWisePow()(self, other)
+            return nyangrad.ops.EWisePow()(self, other)
         else:
-            return needle.ops.PowerScalar(other)(self)
+            return nyangrad.ops.PowerScalar(other)(self)
 
     def __sub__(self, other):
         if isinstance(other, Tensor):
-            return needle.ops.EWiseAdd()(self, needle.ops.Negate()(other))
+            return nyangrad.ops.EWiseAdd()(self, nyangrad.ops.Negate()(other))
         else:
-            return needle.ops.AddScalar(-other)(self)
+            return nyangrad.ops.AddScalar(-other)(self)
 
     def __truediv__(self, other):
         if isinstance(other, Tensor):
-            return needle.ops.EWiseDiv()(self, other)
+            return nyangrad.ops.EWiseDiv()(self, other)
         else:
-            return needle.ops.DivScalar(other)(self)
+            return nyangrad.ops.DivScalar(other)(self)
 
     def __matmul__(self, other):
-        return needle.ops.MatMul()(self, other)
+        return nyangrad.ops.MatMul()(self, other)
 
     def matmul(self, other):
-        return needle.ops.MatMul()(self, other)
+        return nyangrad.ops.MatMul()(self, other)
 
     def sum(self, axes=None):
-        return needle.ops.Summation(axes)(self)
+        return nyangrad.ops.Summation(axes)(self)
 
     def broadcast_to(self, shape):
-        return needle.ops.BroadcastTo(shape)(self)
+        return nyangrad.ops.BroadcastTo(shape)(self)
 
     def reshape(self, shape):
-        return needle.ops.Reshape(shape)(self)
+        return nyangrad.ops.Reshape(shape)(self)
 
     def __neg__(self):
-        return needle.ops.Negate()(self)
+        return nyangrad.ops.Negate()(self)
 
     def transpose(self, axes=None):
-        return needle.ops.Transpose(axes)(self)
+        return nyangrad.ops.Transpose(axes)(self)
 
     __radd__ = __add__
     __rmul__ = __mul__
@@ -379,7 +374,6 @@ def compute_gradient_of_variables(output_tensor, out_grad):
     # Traverse graph in reverse topological order given the output_node that we are taking gradient wrt.
     reverse_topo_order = list(reversed(find_topo_sort([output_tensor])))
 
-    ### BEGIN YOUR SOLUTION
     # loop through list backwards
 
     for node in reverse_topo_order:
@@ -395,7 +389,6 @@ def compute_gradient_of_variables(output_tensor, out_grad):
     
 
     
-    ### END YOUR SOLUTION
 
 
 def find_topo_sort(node_list: List[Value]) -> List[Value]:
@@ -406,19 +399,16 @@ def find_topo_sort(node_list: List[Value]) -> List[Value]:
     after all its predecessors are traversed due to post-order DFS, we get a topological
     sort.
     """
-    ### BEGIN YOUR SOLUTION
     visited = set()
     topo_order = []
     for node in node_list:
         topo_sort_dfs(node, visited, topo_order)
 
     return topo_order
-    ### END YOUR SOLUTION
 
 
 def topo_sort_dfs(node, visited, topo_order):
     """Post-order DFS"""
-    ### BEGIN YOUR SOLUTION
     for input in node.inputs:
         if input not in visited:
             topo_sort_dfs(input, visited, topo_order)
@@ -426,7 +416,6 @@ def topo_sort_dfs(node, visited, topo_order):
 
     topo_order.append(node)
     visited.add(node)
-    ### END YOUR SOLUTION
 
 
 ##############################

@@ -1,5 +1,7 @@
 import math
-import needle as ndl
+from typing import Any
+
+import nyangrad as ndl
 
 
 def rand(*shape, low=0.0, high=1.0, device=None, dtype="float32", requires_grad=False):
@@ -16,13 +18,13 @@ def randn(*shape, mean=0.0, std=1.0, device=None, dtype="float32", requires_grad
     return ndl.Tensor(array, device=device, dtype=dtype, requires_grad=requires_grad)
 
 
+
+
 def constant(*shape, c=1.0, device=None, dtype="float32", requires_grad=False):
     """Generate constant Tensor"""
     device = ndl.cpu() if device is None else device
     array = device.ones(*shape, dtype=dtype) * c  # note: can change dtype
     return ndl.Tensor(array, device=device, dtype=dtype, requires_grad=requires_grad)
-
-
 
 
 
@@ -69,3 +71,29 @@ def ones_like(array, *, device=None, requires_grad=False):
     return ones(
         *array.shape, dtype=array.dtype, device=device, requires_grad=requires_grad
     )
+
+
+
+def xavier_uniform(fan_in: int, fan_out: int, gain: float = 1.0, **kwargs: Any) -> "Tensor":
+    a = gain * math.sqrt(6.0 / (fan_in + fan_out))
+    return rand(fan_in, fan_out, low=-a, high=a, **kwargs)
+
+
+def xavier_normal(fan_in: int, fan_out: int, gain: float = 1.0, **kwargs: any) -> "tensor":
+    std = gain * math.sqrt(2.0 / (fan_in + fan_out))
+    return randn(fan_in, fan_out, mean=0.0, std=std, **kwargs)
+
+def kaiming_uniform(fan_in: int, fan_out: int, nonlinearity: str = "relu", **kwargs: Any) -> "Tensor":
+    assert nonlinearity == "relu", "Only relu supported currently"
+    gain = math.sqrt(2)
+    a = gain * math.sqrt(3.0 / fan_in)
+
+    return rand(fan_in, fan_out, low=-a, high=a, **kwargs)
+
+
+def kaiming_normal(fan_in: int, fan_out: int, nonlinearity: str = "relu", **kwargs: Any) -> "Tensor":
+    assert nonlinearity == "relu", "Only relu supported currently"
+    gain = math.sqrt(2)
+    std = gain / math.sqrt(fan_in)
+
+    return randn(fan_in, fan_out, mean=0.0, std=std, **kwargs)
