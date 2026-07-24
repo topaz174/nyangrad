@@ -21,40 +21,15 @@ class Op:
         raise NotImplementedError()
 
     def compute(self, *args: Tuple[NDArray]):
-        """Calculate forward pass of operator.
-
-        Parameters
-        ----------
-        input: np.ndarray
-            A list of input arrays to the function
-
-        Returns
-        -------
-        output: nd.array
-            Array output of the operation
-
-        """
+        """Run the forward pass on raw arrays and return the result."""
         raise NotImplementedError()
 
     def gradient(
         self, out_grad: "Value", node: "Value"
     ) -> Union["Value", Tuple["Value"]]:
-        """Compute partial adjoint for each input value for a given output adjoint.
-
-        Parameters
-        ----------
-        out_grad: Value
-            The adjoint wrt to the output value.
-
-        node: Value
-            The value node of forward evaluation.
-
-        Returns
-        -------
-        input_grads: Value or Tuple[Value]
-            A list containing partial gradient adjoints to be propagated to
-            each of the input node.
-        """
+        """Given the gradient w.r.t. this op's output, return the gradient(s)
+        w.r.t. each of its inputs, expressed as ops on Tensors so the whole
+        thing stays differentiable."""
         raise NotImplementedError()
 
     def gradient_as_tuple(self, out_grad: "Value", node: "Value") -> Tuple["Value"]:

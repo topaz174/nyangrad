@@ -1,5 +1,4 @@
-"""The module.
-"""
+"""Neural network layers built on top of the autograd engine."""
 from typing import Any
 from nyangrad.autograd import Tensor
 from nyangrad import ops

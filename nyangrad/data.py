@@ -10,11 +10,10 @@ from typing import Iterator, Optional, List, Sized, Union, Iterable, Any
 
 
 class Dataset:
-    r"""An abstract class representing a `Dataset`.
+    """Base class for a dataset: anything that supports indexing and len().
 
-    All subclasses should overwrite :meth:`__getitem__`, supporting fetching a
-    data sample for a given key. Subclasses must also overwrite
-    :meth:`__len__`, which is expected to return the size of the dataset.
+    Subclasses implement __getitem__ (fetch a single sample) and __len__
+    (the number of samples), and the DataLoader takes care of batching them.
     """
 
     def __init__(self, transforms: Optional[List] = None):
@@ -35,16 +34,7 @@ class Dataset:
 
 
 class DataLoader:
-    r"""
-    Data loader. Combines a dataset and a sampler, and provides an iterable over
-    the given dataset.
-    Args:
-        dataset (Dataset): dataset from which to load the data.
-        batch_size (int, optional): how many samples per batch to load
-            (default: ``1``).
-        shuffle (bool, optional): set to ``True`` to have the data reshuffled
-            at every epoch (default: ``False``).
-     """
+    """Iterates over a Dataset in batches, optionally shuffling each epoch."""
     dataset: Dataset
     batch_size: Optional[int]
 
@@ -105,14 +95,7 @@ class RandomFlipHorizontal(Transform):
         self.p = p
 
     def __call__(self, img):
-        """
-        Horizonally flip an image, specified as an H x W x C NDArray.
-        Args:
-            img: H x W x C NDArray of an image
-        Returns:
-            H x W x C NDArray corresponding to image flipped with probability self.p
-        Note: use the provided code to provide randomness, for easier testing
-        """
+        """Flip an H x W x C image horizontally with probability self.p."""
         flip_img = np.random.rand() < self.p
         if flip_img:
             return np.flip(img, axis=1)
@@ -125,13 +108,7 @@ class RandomCrop(Transform):
         self.padding = padding
 
     def __call__(self, img):
-        """ Zero pad and then randomly crop an image.
-        Args:
-             img: H x W x C NDArray of an image
-        Return 
-            H x W x C NDArray of cliped image
-        Note: generate the image shifted by shift_x, shift_y specified below
-        """
+        """Zero-pad an H x W x C image and randomly crop it back to its original size."""
         shift_x, shift_y = np.random.randint(low=-self.padding, high=self.padding+1, size=2)
         img_padded = np.pad(img, ((self.padding, self.padding), (self.padding, self.padding), (0, 0)), mode='constant', constant_values=0)
 
