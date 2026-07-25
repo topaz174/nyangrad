@@ -5,15 +5,6 @@ reverse-mode automatic differentiation engine, a tensor type that records a comp
 use it, and enough of a neural network library on top (layers, losses, initializers, optimizers, a
 data loader) to actually train models end to end. The MNIST MLP-ResNet in `examples/` trains with it.
 
-The whole point was to understand how a framework like PyTorch works underneath instead of treating
-`loss.backward()` as magic. So the code leans towards being explicit and readable rather than fast.
-Everything is plain NumPy, no autodiff libraries, and every gradient is written out by hand and checked
-numerically in the tests.
-
-If you want the short version: it is a tensor library with autograd, a small `nn` module, `optim`,
-`init`, and `data`, plus a couple of training scripts.
-
-
 ## What is in here
 
 - `nyangrad/autograd.py` - the core. The `Value`/`Tensor` types, the computation graph, the topological
