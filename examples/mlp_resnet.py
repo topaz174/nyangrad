@@ -1,6 +1,6 @@
 import numpy as np
 
-import nyangrad as ndl
+import nyangrad as nyan
 import nyangrad.nn as nn
 
 np.random.seed(0)
@@ -79,24 +79,24 @@ def epoch(dataloader, model, opt=None):
 def train_mnist(
     batch_size=100,
     epochs=10,
-    optimizer=ndl.optim.Adam,
+    optimizer=nyan.optim.Adam,
     lr=0.001,
     weight_decay=0.001,
     hidden_dim=100,
     data_dir="data",
 ):
     np.random.seed(4)
-    train_dset = ndl.data.MNISTDataset(f"{data_dir}/train-images-idx3-ubyte.gz", 
+    train_dset = nyan.data.MNISTDataset(f"{data_dir}/train-images-idx3-ubyte.gz", 
                              f"{data_dir}/train-labels-idx1-ubyte.gz")
-    test_dset = ndl.data.MNISTDataset(f"{data_dir}/t10k-images-idx3-ubyte.gz",
+    test_dset = nyan.data.MNISTDataset(f"{data_dir}/t10k-images-idx3-ubyte.gz",
                             f"{data_dir}/t10k-labels-idx1-ubyte.gz")
 
     resnet = MLPResNet(28 * 28, hidden_dim=hidden_dim, num_classes=10)
 
     opt = optimizer(resnet.parameters(), lr=lr, weight_decay=weight_decay)
 
-    train_dloader = ndl.data.DataLoader(train_dset, batch_size=batch_size, shuffle=True)
-    test_dloader = ndl.data.DataLoader(test_dset, batch_size=batch_size)
+    train_dloader = nyan.data.DataLoader(train_dset, batch_size=batch_size, shuffle=True)
+    test_dloader = nyan.data.DataLoader(test_dset, batch_size=batch_size)
 
     for _ in range(epochs):
         train_err, train_loss = epoch(train_dloader, resnet, opt)

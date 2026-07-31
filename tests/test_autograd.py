@@ -2,7 +2,7 @@ import numdifftools as nd
 import numpy as np
 import mugrade
 
-import nyangrad as ndl
+import nyangrad as nyan
 from two_layer_net import *
 
 
@@ -10,16 +10,16 @@ from two_layer_net import *
 ### TESTS/SUBMISSION CODE FOR forward passes
 def test_power_scalar_forward():
     np.testing.assert_allclose(
-        ndl.power_scalar(ndl.Tensor([[0.5, 2.0, 3.0]]), scalar=2).numpy(),
+        nyan.power_scalar(nyan.Tensor([[0.5, 2.0, 3.0]]), scalar=2).numpy(),
         np.array([[0.25, 4.0, 9.0]]),
     )
 
 
 def test_divide_forward():
     np.testing.assert_allclose(
-        ndl.divide(
-            ndl.Tensor([[3.3, 4.35, 1.2], [2.45, 0.95, 2.55]]),
-            ndl.Tensor([[4.6, 4.35, 4.8], [0.65, 0.7, 4.4]]),
+        nyan.divide(
+            nyan.Tensor([[3.3, 4.35, 1.2], [2.45, 0.95, 2.55]]),
+            nyan.Tensor([[4.6, 4.35, 4.8], [0.65, 0.7, 4.4]]),
         ).numpy(),
         np.array(
             [
@@ -32,33 +32,33 @@ def test_divide_forward():
 
 def test_divide_scalar_forward():
     np.testing.assert_allclose(
-        ndl.divide_scalar(ndl.Tensor([[1.7, 1.45]]), scalar=12).numpy(),
+        nyan.divide_scalar(nyan.Tensor([[1.7, 1.45]]), scalar=12).numpy(),
         np.array([[0.141666666667, 0.120833333333]]),
     )
 
 
 def test_matmul_forward():
     np.testing.assert_allclose(
-        ndl.matmul(
-            ndl.Tensor([[4.95, 1.75, 0.25], [4.15, 4.25, 0.3], [0.3, 0.4, 2.1]]),
-            ndl.Tensor([[1.35, 2.2, 1.55], [3.85, 4.8, 2.6], [1.15, 0.85, 4.15]]),
+        nyan.matmul(
+            nyan.Tensor([[4.95, 1.75, 0.25], [4.15, 4.25, 0.3], [0.3, 0.4, 2.1]]),
+            nyan.Tensor([[1.35, 2.2, 1.55], [3.85, 4.8, 2.6], [1.15, 0.85, 4.15]]),
         ).numpy(),
         np.array(
             [[13.7075, 19.5025, 13.26], [22.31, 29.785, 18.7275], [4.36, 4.365, 10.22]]
         ),
     )
     np.testing.assert_allclose(
-        ndl.matmul(
-            ndl.Tensor([[3.8, 0.05], [2.3, 3.35], [1.6, 2.6]]),
-            ndl.Tensor([[1.1, 3.5, 3.7], [0.05, 1.25, 1.0]]),
+        nyan.matmul(
+            nyan.Tensor([[3.8, 0.05], [2.3, 3.35], [1.6, 2.6]]),
+            nyan.Tensor([[1.1, 3.5, 3.7], [0.05, 1.25, 1.0]]),
         ).numpy(),
         np.array(
             [[4.1825, 13.3625, 14.11], [2.6975, 12.2375, 11.86], [1.89, 8.85, 8.52]]
         ),
     )
     np.testing.assert_allclose(
-        ndl.matmul(
-            ndl.Tensor(
+        nyan.matmul(
+            nyan.Tensor(
                 [
                     [[4.0, 2.15], [1.25, 1.35], [0.75, 1.6]],
                     [[2.9, 2.15], [3.3, 4.1], [2.5, 0.25]],
@@ -68,7 +68,7 @@ def test_matmul_forward():
                     [[0.45, 1.1], [3.15, 0.7], [2.9, 1.95]],
                 ]
             ),
-            ndl.Tensor(
+            nyan.Tensor(
                 [
                     [[2.7, 4.05, 0.1], [1.75, 3.05, 2.3]],
                     [[0.55, 4.1, 2.3], [4.45, 2.35, 2.55]],
@@ -107,9 +107,9 @@ def test_matmul_forward():
         ),
     )
     np.testing.assert_allclose(
-        ndl.matmul(
-            ndl.Tensor([[1.9, 1.9], [4.8, 4.9], [3.25, 3.75]]),
-            ndl.Tensor(
+        nyan.matmul(
+            nyan.Tensor([[1.9, 1.9], [4.8, 4.9], [3.25, 3.75]]),
+            nyan.Tensor(
                 [
                     [[1.25, 1.8, 1.95], [3.75, 2.85, 2.25]],
                     [[1.75, 2.7, 3.3], [2.95, 1.55, 3.85]],
@@ -138,15 +138,15 @@ def test_matmul_forward():
         ),
     )
     np.testing.assert_allclose(
-        ndl.matmul(
-            ndl.Tensor(
+        nyan.matmul(
+            nyan.Tensor(
                 [
                     [[3.4, 2.95], [0.25, 1.95], [4.4, 4.4]],
                     [[0.55, 1.1], [0.75, 1.55], [4.1, 1.2]],
                     [[1.5, 4.05], [1.5, 1.55], [2.3, 1.25]],
                 ]
             ),
-            ndl.Tensor([[2.2, 0.65, 2.5], [2.5, 1.3, 0.15]]),
+            nyan.Tensor([[2.2, 0.65, 2.5], [2.5, 1.3, 0.15]]),
         ).numpy(),
         np.array(
             [
@@ -164,8 +164,8 @@ def test_matmul_forward():
 
 def test_summation_forward():
     np.testing.assert_allclose(
-        ndl.summation(
-            ndl.Tensor(
+        nyan.summation(
+            nyan.Tensor(
                 [
                     [2.2, 4.35, 1.4, 0.3, 2.65],
                     [1.0, 0.85, 2.75, 3.8, 1.55],
@@ -176,8 +176,8 @@ def test_summation_forward():
         np.array(30.5),
     )
     np.testing.assert_allclose(
-        ndl.summation(
-            ndl.Tensor(
+        nyan.summation(
+            nyan.Tensor(
                 [
                     [1.05, 2.55, 1.0],
                     [2.95, 3.7, 2.6],
@@ -191,8 +191,8 @@ def test_summation_forward():
         np.array([4.6, 9.25, 7.5, 7.9, 8.65]),
     )
     np.testing.assert_allclose(
-        ndl.summation(
-            ndl.Tensor([[1.5, 3.85, 3.45], [1.35, 1.3, 0.65], [2.6, 4.55, 0.25]]),
+        nyan.summation(
+            nyan.Tensor([[1.5, 3.85, 3.45], [1.35, 1.3, 0.65], [2.6, 4.55, 0.25]]),
             axes=0,
         ).numpy(),
         np.array([5.45, 9.7, 4.35]),
@@ -201,7 +201,7 @@ def test_summation_forward():
 
 def test_broadcast_to_forward():
     np.testing.assert_allclose(
-        ndl.broadcast_to(ndl.Tensor([[1.85, 0.85, 0.6]]), shape=(3, 3, 3)).numpy(),
+        nyan.broadcast_to(nyan.Tensor([[1.85, 0.85, 0.6]]), shape=(3, 3, 3)).numpy(),
         np.array(
             [
                 [[1.85, 0.85, 0.6], [1.85, 0.85, 0.6], [1.85, 0.85, 0.6]],
@@ -214,8 +214,8 @@ def test_broadcast_to_forward():
 
 def test_reshape_forward():
     np.testing.assert_allclose(
-        ndl.reshape(
-            ndl.Tensor(
+        nyan.reshape(
+            nyan.Tensor(
                 [
                     [2.9, 2.0, 2.4],
                     [3.95, 3.95, 4.65],
@@ -247,8 +247,8 @@ def test_reshape_forward():
         ),
     )
     np.testing.assert_allclose(
-        ndl.reshape(
-            ndl.Tensor(
+        nyan.reshape(
+            nyan.Tensor(
                 [
                     [[4.1, 4.05, 1.35, 1.65], [3.65, 0.9, 0.65, 4.15]],
                     [[4.7, 1.4, 2.55, 4.8], [2.8, 1.75, 2.8, 0.6]],
@@ -272,24 +272,24 @@ def test_reshape_forward():
 
 def test_negate_forward():
     np.testing.assert_allclose(
-        ndl.negate(ndl.Tensor([[1.45, 0.55]])).numpy(), np.array([[-1.45, -0.55]])
+        nyan.negate(nyan.Tensor([[1.45, 0.55]])).numpy(), np.array([[-1.45, -0.55]])
     )
 
 
 def test_transpose_forward():
     np.testing.assert_allclose(
-        ndl.transpose(ndl.Tensor([[[1.95]], [[2.7]], [[3.75]]]), axes=(1, 2)).numpy(),
+        nyan.transpose(nyan.Tensor([[[1.95]], [[2.7]], [[3.75]]]), axes=(1, 2)).numpy(),
         np.array([[[1.95]], [[2.7]], [[3.75]]]),
     )
     np.testing.assert_allclose(
-        ndl.transpose(
-            ndl.Tensor([[[[0.95]]], [[[2.55]]], [[[0.45]]]]), axes=(2, 3)
+        nyan.transpose(
+            nyan.Tensor([[[[0.95]]], [[[2.55]]], [[[0.45]]]]), axes=(2, 3)
         ).numpy(),
         np.array([[[[0.95]]], [[[2.55]]], [[[0.45]]]]),
     )
     np.testing.assert_allclose(
-        ndl.transpose(
-            ndl.Tensor(
+        nyan.transpose(
+            nyan.Tensor(
                 [
                     [[[0.4, 0.05], [2.95, 1.3]], [[4.8, 1.2], [1.65, 3.1]]],
                     [[[1.45, 3.05], [2.25, 0.1]], [[0.45, 4.75], [1.5, 1.8]]],
@@ -306,22 +306,22 @@ def test_transpose_forward():
         ),
     )
     np.testing.assert_allclose(
-        ndl.transpose(ndl.Tensor([[[2.45]], [[3.5]], [[0.9]]]), axes=(0, 1)).numpy(),
+        nyan.transpose(nyan.Tensor([[[2.45]], [[3.5]], [[0.9]]]), axes=(0, 1)).numpy(),
         np.array([[[2.45], [3.5], [0.9]]]),
     )
     np.testing.assert_allclose(
-        ndl.transpose(ndl.Tensor([[4.4, 2.05], [1.85, 2.25], [0.15, 1.4]])).numpy(),
+        nyan.transpose(nyan.Tensor([[4.4, 2.05], [1.85, 2.25], [0.15, 1.4]])).numpy(),
         np.array([[4.4, 1.85, 0.15], [2.05, 2.25, 1.4]]),
     )
     np.testing.assert_allclose(
-        ndl.transpose(
-            ndl.Tensor([[0.05, 3.7, 1.35], [4.45, 3.25, 1.95], [2.45, 4.4, 4.5]])
+        nyan.transpose(
+            nyan.Tensor([[0.05, 3.7, 1.35], [4.45, 3.25, 1.95], [2.45, 4.4, 4.5]])
         ).numpy(),
         np.array([[0.05, 4.45, 2.45], [3.7, 3.25, 4.4], [1.35, 1.95, 4.5]]),
     )
     np.testing.assert_allclose(
-        ndl.transpose(
-            ndl.Tensor(
+        nyan.transpose(
+            nyan.Tensor(
                 [
                     [[0.55, 1.8, 0.2], [0.8, 2.75, 3.7], [0.95, 1.4, 0.8]],
                     [[0.75, 1.6, 1.35], [3.75, 4.0, 4.55], [1.85, 2.5, 4.8]],
@@ -342,46 +342,46 @@ def test_transpose_forward():
 
 def test_log_forward():
     np.testing.assert_allclose(
-        ndl.log(ndl.Tensor([[4.0], [4.55]])).numpy(),
+        nyan.log(nyan.Tensor([[4.0], [4.55]])).numpy(),
         np.array([[1.38629436112], [1.515127232963]]),
     )
 
 
 def test_exp_forward():
     np.testing.assert_allclose(
-        ndl.exp(ndl.Tensor([[4.0], [4.55]])).numpy(),
+        nyan.exp(nyan.Tensor([[4.0], [4.55]])).numpy(),
         np.array([[54.59815003],[94.63240831]]),
     )
 
 
 def test_ewisepow_forward():
     np.testing.assert_allclose(
-        ndl.power(
-            ndl.Tensor([[1.0, 2.0, 3.0]]),
-            ndl.Tensor([[0, 0, 2]]),
+        nyan.power(
+            nyan.Tensor([[1.0, 2.0, 3.0]]),
+            nyan.Tensor([[0, 0, 2]]),
         ).numpy(),
         np.array([[1.0, 1.0, 9.0]]),
     )
 
 
 def submit_forward():
-    mugrade.submit(ndl.power_scalar(ndl.Tensor([[0.3, 2.5]]), scalar=3).numpy())
+    mugrade.submit(nyan.power_scalar(nyan.Tensor([[0.3, 2.5]]), scalar=3).numpy())
     mugrade.submit(
-        ndl.divide(
-            ndl.Tensor([[3.4, 2.35, 1.25], [0.45, 1.95, 2.55]]),
-            ndl.Tensor([[4.9, 4.35, 4.1], [0.65, 0.7, 4.04]]),
+        nyan.divide(
+            nyan.Tensor([[3.4, 2.35, 1.25], [0.45, 1.95, 2.55]]),
+            nyan.Tensor([[4.9, 4.35, 4.1], [0.65, 0.7, 4.04]]),
         ).numpy()
     )
-    mugrade.submit(ndl.divide_scalar(ndl.Tensor([[1.4, 2.89]]), scalar=7).numpy())
+    mugrade.submit(nyan.divide_scalar(nyan.Tensor([[1.4, 2.89]]), scalar=7).numpy())
     mugrade.submit(
-        ndl.matmul(
-            ndl.Tensor([[1.75, 1.75, 0.25], [4.95, 4.35, 0.3], [0.3, 1.4, 2.1]]),
-            ndl.Tensor([[2.35, 2.2, 1.85], [7.85, 4.88, 2.6], [1.15, 0.25, 4.19]]),
+        nyan.matmul(
+            nyan.Tensor([[1.75, 1.75, 0.25], [4.95, 4.35, 0.3], [0.3, 1.4, 2.1]]),
+            nyan.Tensor([[2.35, 2.2, 1.85], [7.85, 4.88, 2.6], [1.15, 0.25, 4.19]]),
         ).numpy()
     )
     mugrade.submit(
-        ndl.summation(
-            ndl.Tensor(
+        nyan.summation(
+            nyan.Tensor(
                 [
                     [1.2, 4.35, 1.4, 0.3, 0.75],
                     [2.0, 1.85, 7.75, 3.7, 1.55],
@@ -391,8 +391,8 @@ def submit_forward():
         ).numpy()
     )
     mugrade.submit(
-        ndl.summation(
-            ndl.Tensor(
+        nyan.summation(
+            nyan.Tensor(
                 [
                     [5.05, 2.55, 1.0],
                     [2.75, 3.7, 2.1],
@@ -405,11 +405,11 @@ def submit_forward():
         ).numpy()
     )
     mugrade.submit(
-        ndl.broadcast_to(ndl.Tensor([[1.95, 3.85, -0.6]]), shape=(3, 3, 3)).numpy()
+        nyan.broadcast_to(nyan.Tensor([[1.95, 3.85, -0.6]]), shape=(3, 3, 3)).numpy()
     )
     mugrade.submit(
-        ndl.reshape(
-            ndl.Tensor(
+        nyan.reshape(
+            nyan.Tensor(
                 [
                     [7.9, 2.0, 2.4],
                     [3.11, 3.95, 0.65],
@@ -422,8 +422,8 @@ def submit_forward():
         ).numpy()
     )
     mugrade.submit(
-        ndl.reshape(
-            ndl.Tensor(
+        nyan.reshape(
+            nyan.Tensor(
                 [
                     [[5.1, 4.05, 1.25, 4.65], [3.65, 0.9, 0.65, 1.65]],
                     [[4.7, 1.4, 2.55, 4.8], [2.8, 1.75, 3.8, 0.6]],
@@ -433,18 +433,18 @@ def submit_forward():
             shape=(2, 3, 4),
         ).numpy()
     )
-    mugrade.submit(ndl.negate(ndl.Tensor([[1.45, 0.55]])).numpy())
+    mugrade.submit(nyan.negate(nyan.Tensor([[1.45, 0.55]])).numpy())
     mugrade.submit(
-        ndl.transpose(ndl.Tensor([[[3.45]], [[2.54]], [[1.91]]]), axes=(0, 1)).numpy()
+        nyan.transpose(nyan.Tensor([[[3.45]], [[2.54]], [[1.91]]]), axes=(0, 1)).numpy()
     )
     mugrade.submit(
-        ndl.transpose(ndl.Tensor([[4.45, 2.15], [1.89, 1.21], [6.15, 2.42]])).numpy()
+        nyan.transpose(nyan.Tensor([[4.45, 2.15], [1.89, 1.21], [6.15, 2.42]])).numpy()
     )
-    mugrade.submit(ndl.log(ndl.Tensor([[[3.45]], [[2.54]], [[1.91]]])).numpy())
-    mugrade.submit(ndl.log(ndl.Tensor([[4.45, 2.15], [1.89, 1.21], [6.15, 2.42]])).numpy())
-    mugrade.submit(ndl.exp(ndl.Tensor([[[3.45]], [[2.54]], [[1.91]]])).numpy())
-    mugrade.submit(ndl.exp(ndl.Tensor([[4.45, 2.15], [1.89, 1.21], [6.15, 2.42]])).numpy())
-    mugrade.submit(ndl.power(ndl.Tensor([[0.3, 2.5]]), ndl.Tensor([[2, 0]])).numpy())
+    mugrade.submit(nyan.log(nyan.Tensor([[[3.45]], [[2.54]], [[1.91]]])).numpy())
+    mugrade.submit(nyan.log(nyan.Tensor([[4.45, 2.15], [1.89, 1.21], [6.15, 2.42]])).numpy())
+    mugrade.submit(nyan.exp(nyan.Tensor([[[3.45]], [[2.54]], [[1.91]]])).numpy())
+    mugrade.submit(nyan.exp(nyan.Tensor([[4.45, 2.15], [1.89, 1.21], [6.15, 2.42]])).numpy())
+    mugrade.submit(nyan.power(nyan.Tensor([[0.3, 2.5]]), nyan.Tensor([[2, 0]])).numpy())
 
 ##############################################################################
 ### TESTS/SUBMISSION CODE FOR backward passes
@@ -465,7 +465,7 @@ def gradient_check(f, *args, tol=1e-6, backward=False, **kwargs):
         out = f(*args, **kwargs)
         computed_grads = [
             x.numpy()
-            for x in out.op.gradient_as_tuple(ndl.Tensor(np.ones(out.shape)), out)
+            for x in out.op.gradient_as_tuple(nyan.Tensor(np.ones(out.shape)), out)
         ]
     else:
         out = f(*args, **kwargs).sum()
@@ -480,181 +480,181 @@ def gradient_check(f, *args, tol=1e-6, backward=False, **kwargs):
 
 def test_power_scalar_backward():
     gradient_check(
-        ndl.power_scalar, ndl.Tensor(np.random.randn(5, 4)), scalar=np.random.randint(1)
+        nyan.power_scalar, nyan.Tensor(np.random.randn(5, 4)), scalar=np.random.randint(1)
     )
 
 def test_divide_backward():
     gradient_check(
-        ndl.divide,
-        ndl.Tensor(np.random.randn(5, 4)),
-        ndl.Tensor(5 + np.random.randn(5, 4)),
+        nyan.divide,
+        nyan.Tensor(np.random.randn(5, 4)),
+        nyan.Tensor(5 + np.random.randn(5, 4)),
         tol=2e-2,
     )
 
 
 def test_divide_scalar_backward():
     gradient_check(
-        ndl.divide_scalar, ndl.Tensor(np.random.randn(5, 4)), scalar=np.random.randn(1)
+        nyan.divide_scalar, nyan.Tensor(np.random.randn(5, 4)), scalar=np.random.randn(1)
     )
 
 
 def test_matmul_simple_backward():
     gradient_check(
-        ndl.matmul, ndl.Tensor(np.random.randn(5, 4)), ndl.Tensor(np.random.randn(4, 5))
+        nyan.matmul, nyan.Tensor(np.random.randn(5, 4)), nyan.Tensor(np.random.randn(4, 5))
     )
 
 
 def test_matmul_batched_backward():
     gradient_check(
-        ndl.matmul,
-        ndl.Tensor(np.random.randn(6, 6, 5, 4)),
-        ndl.Tensor(np.random.randn(6, 6, 4, 3)),
+        nyan.matmul,
+        nyan.Tensor(np.random.randn(6, 6, 5, 4)),
+        nyan.Tensor(np.random.randn(6, 6, 4, 3)),
     )
     gradient_check(
-        ndl.matmul,
-        ndl.Tensor(np.random.randn(6, 6, 5, 4)),
-        ndl.Tensor(np.random.randn(4, 3)),
+        nyan.matmul,
+        nyan.Tensor(np.random.randn(6, 6, 5, 4)),
+        nyan.Tensor(np.random.randn(4, 3)),
     )
     gradient_check(
-        ndl.matmul,
-        ndl.Tensor(np.random.randn(5, 4)),
-        ndl.Tensor(np.random.randn(6, 6, 4, 3)),
+        nyan.matmul,
+        nyan.Tensor(np.random.randn(5, 4)),
+        nyan.Tensor(np.random.randn(6, 6, 4, 3)),
     )
 
 
 def test_reshape_backward():
-    gradient_check(ndl.reshape, ndl.Tensor(np.random.randn(5, 4)), shape=(4, 5))
+    gradient_check(nyan.reshape, nyan.Tensor(np.random.randn(5, 4)), shape=(4, 5))
 
 
 def test_negate_backward():
-    gradient_check(ndl.negate, ndl.Tensor(np.random.randn(5, 4)))
+    gradient_check(nyan.negate, nyan.Tensor(np.random.randn(5, 4)))
 
 
 def test_transpose_backward():
-    gradient_check(ndl.transpose, ndl.Tensor(np.random.randn(3, 5, 4)), axes=(1, 2))
-    gradient_check(ndl.transpose, ndl.Tensor(np.random.randn(3, 5, 4)), axes=(0, 1))
+    gradient_check(nyan.transpose, nyan.Tensor(np.random.randn(3, 5, 4)), axes=(1, 2))
+    gradient_check(nyan.transpose, nyan.Tensor(np.random.randn(3, 5, 4)), axes=(0, 1))
 
 
 def test_broadcast_to_backward():
-    gradient_check(ndl.broadcast_to, ndl.Tensor(np.random.randn(3, 1)), shape=(3, 3))
-    gradient_check(ndl.broadcast_to, ndl.Tensor(np.random.randn(1, 3)), shape=(3, 3))
+    gradient_check(nyan.broadcast_to, nyan.Tensor(np.random.randn(3, 1)), shape=(3, 3))
+    gradient_check(nyan.broadcast_to, nyan.Tensor(np.random.randn(1, 3)), shape=(3, 3))
     gradient_check(
-        ndl.broadcast_to,
-        ndl.Tensor(
+        nyan.broadcast_to,
+        nyan.Tensor(
             np.random.randn(
                 1,
             )
         ),
         shape=(3, 3, 3),
     )
-    gradient_check(ndl.broadcast_to, ndl.Tensor(np.random.randn()), shape=(3, 3, 3))
+    gradient_check(nyan.broadcast_to, nyan.Tensor(np.random.randn()), shape=(3, 3, 3))
     gradient_check(
-        ndl.broadcast_to, ndl.Tensor(np.random.randn(5, 4, 1)), shape=(5, 4, 3)
+        nyan.broadcast_to, nyan.Tensor(np.random.randn(5, 4, 1)), shape=(5, 4, 3)
     )
 
 
 def test_summation_backward():
-    gradient_check(ndl.summation, ndl.Tensor(np.random.randn(5, 4)), axes=(1,))
-    gradient_check(ndl.summation, ndl.Tensor(np.random.randn(5, 4)), axes=(0,))
-    gradient_check(ndl.summation, ndl.Tensor(np.random.randn(5, 4)), axes=(0, 1))
-    gradient_check(ndl.summation, ndl.Tensor(np.random.randn(5, 4, 1)), axes=(0, 1))
+    gradient_check(nyan.summation, nyan.Tensor(np.random.randn(5, 4)), axes=(1,))
+    gradient_check(nyan.summation, nyan.Tensor(np.random.randn(5, 4)), axes=(0,))
+    gradient_check(nyan.summation, nyan.Tensor(np.random.randn(5, 4)), axes=(0, 1))
+    gradient_check(nyan.summation, nyan.Tensor(np.random.randn(5, 4, 1)), axes=(0, 1))
 
 
 def test_log_backward():
-    gradient_check(ndl.log, ndl.Tensor(1 + np.random.rand(5, 4)))
+    gradient_check(nyan.log, nyan.Tensor(1 + np.random.rand(5, 4)))
 
 
 def test_exp_backward():
-    gradient_check(ndl.exp, ndl.Tensor(1 + np.random.rand(5, 4))) 
+    gradient_check(nyan.exp, nyan.Tensor(1 + np.random.rand(5, 4))) 
 
 
 def test_ewisepow_backward():
     gradient_check(
-        ndl.power, ndl.Tensor([[1.0, 2.0, 3.0]]), ndl.Tensor(np.ones((1,3))*2)
+        nyan.power, nyan.Tensor([[1.0, 2.0, 3.0]]), nyan.Tensor(np.ones((1,3))*2)
     )
 
 def submit_backward():
     np.random.seed(0)
     mugrade.submit(
         gradient_check(
-            ndl.power_scalar,
-            ndl.Tensor(np.random.randn(3, 5)),
+            nyan.power_scalar,
+            nyan.Tensor(np.random.randn(3, 5)),
             scalar=np.random.randint(1),
         )
     )
     mugrade.submit(
         gradient_check(
-            ndl.divide,
-            ndl.Tensor(np.random.randn(3, 5)),
-            ndl.Tensor(6 + np.random.randn(3, 5)),
+            nyan.divide,
+            nyan.Tensor(np.random.randn(3, 5)),
+            nyan.Tensor(6 + np.random.randn(3, 5)),
         )
     )
     mugrade.submit(
         gradient_check(
-            ndl.divide_scalar,
-            ndl.Tensor(np.random.randn(3, 5)),
+            nyan.divide_scalar,
+            nyan.Tensor(np.random.randn(3, 5)),
             scalar=np.random.randn(1),
         )
     )
     mugrade.submit(
         gradient_check(
-            ndl.matmul,
-            ndl.Tensor(np.random.randn(1, 5)),
-            ndl.Tensor(np.random.randn(5, 1)),
+            nyan.matmul,
+            nyan.Tensor(np.random.randn(1, 5)),
+            nyan.Tensor(np.random.randn(5, 1)),
         )
     )
     mugrade.submit(
         gradient_check(
-            ndl.matmul,
-            ndl.Tensor(np.random.randn(2, 4)),
-            ndl.Tensor(np.random.randn(4, 2)),
+            nyan.matmul,
+            nyan.Tensor(np.random.randn(2, 4)),
+            nyan.Tensor(np.random.randn(4, 2)),
         )
     )
     mugrade.submit(
         gradient_check(
-            ndl.matmul,
-            ndl.Tensor(np.random.randn(2, 4)),
-            ndl.Tensor(np.random.randn(7, 4, 2)),
+            nyan.matmul,
+            nyan.Tensor(np.random.randn(2, 4)),
+            nyan.Tensor(np.random.randn(7, 4, 2)),
         )
     )
     mugrade.submit(
         gradient_check(
-            ndl.matmul,
-            ndl.Tensor(np.random.randn(3, 2, 1)),
-            ndl.Tensor(np.random.randn(3, 3, 1, 2)),
+            nyan.matmul,
+            nyan.Tensor(np.random.randn(3, 2, 1)),
+            nyan.Tensor(np.random.randn(3, 3, 1, 2)),
         )
     )
     mugrade.submit(
         gradient_check(
-            ndl.matmul,
-            ndl.Tensor(np.random.randn(2, 4)),
-            ndl.Tensor(np.random.randn(2, 4, 4, 2)),
+            nyan.matmul,
+            nyan.Tensor(np.random.randn(2, 4)),
+            nyan.Tensor(np.random.randn(2, 4, 4, 2)),
         )
     )
     mugrade.submit(
-        gradient_check(ndl.reshape, ndl.Tensor(np.random.randn(5, 4)), shape=(5, 4, 1))
+        gradient_check(nyan.reshape, nyan.Tensor(np.random.randn(5, 4)), shape=(5, 4, 1))
     )
     mugrade.submit(
-        gradient_check(ndl.reshape, ndl.Tensor(np.random.randn(5, 4)), shape=(2, 2, 5))
+        gradient_check(nyan.reshape, nyan.Tensor(np.random.randn(5, 4)), shape=(2, 2, 5))
     )
-    mugrade.submit(gradient_check(ndl.negate, ndl.Tensor(np.random.randn(1, 4, 2))))
+    mugrade.submit(gradient_check(nyan.negate, nyan.Tensor(np.random.randn(1, 4, 2))))
     mugrade.submit(
-        gradient_check(ndl.transpose, ndl.Tensor(np.random.randn(3, 2, 4)), axes=(0, 2))
-    )
-    mugrade.submit(
-        gradient_check(
-            ndl.broadcast_to, ndl.Tensor(np.random.randn(7, 1)), shape=(7, 7)
-        )
+        gradient_check(nyan.transpose, nyan.Tensor(np.random.randn(3, 2, 4)), axes=(0, 2))
     )
     mugrade.submit(
         gradient_check(
-            ndl.broadcast_to, ndl.Tensor(np.random.randn(1, 5)), shape=(5, 5)
+            nyan.broadcast_to, nyan.Tensor(np.random.randn(7, 1)), shape=(7, 7)
         )
     )
     mugrade.submit(
         gradient_check(
-            ndl.broadcast_to,
-            ndl.Tensor(
+            nyan.broadcast_to, nyan.Tensor(np.random.randn(1, 5)), shape=(5, 5)
+        )
+    )
+    mugrade.submit(
+        gradient_check(
+            nyan.broadcast_to,
+            nyan.Tensor(
                 np.random.randn(
                     1,
                 )
@@ -663,21 +663,21 @@ def submit_backward():
         )
     )
     mugrade.submit(
-        gradient_check(ndl.broadcast_to, ndl.Tensor(np.random.randn()), shape=(1, 3, 6))
+        gradient_check(nyan.broadcast_to, nyan.Tensor(np.random.randn()), shape=(1, 3, 6))
     )
     mugrade.submit(
         gradient_check(
-            ndl.broadcast_to, ndl.Tensor(np.random.randn(4, 4, 1)), shape=(4, 4, 6)
+            nyan.broadcast_to, nyan.Tensor(np.random.randn(4, 4, 1)), shape=(4, 4, 6)
         )
     )
-    mugrade.submit(gradient_check(ndl.summation, ndl.Tensor(np.random.randn(3, 2, 1))))
+    mugrade.submit(gradient_check(nyan.summation, nyan.Tensor(np.random.randn(3, 2, 1))))
     mugrade.submit(
-        gradient_check(ndl.summation, ndl.Tensor(np.random.randn(3, 6)), axes=(1,))
+        gradient_check(nyan.summation, nyan.Tensor(np.random.randn(3, 6)), axes=(1,))
     )
     mugrade.submit(
         gradient_check(
-            ndl.summation,
-            ndl.Tensor(
+            nyan.summation,
+            nyan.Tensor(
                 np.random.randn(
                     7,
                 )
@@ -686,21 +686,21 @@ def submit_backward():
         )
     )
     mugrade.submit(
-        gradient_check(ndl.summation, ndl.Tensor(np.random.randn(7, 8)), axes=(0, 1))
+        gradient_check(nyan.summation, nyan.Tensor(np.random.randn(7, 8)), axes=(0, 1))
     )
     mugrade.submit(
         gradient_check(
-            ndl.summation, ndl.Tensor(np.random.randn(5, 4, 5)), axes=(0, 1, 2)
+            nyan.summation, nyan.Tensor(np.random.randn(5, 4, 5)), axes=(0, 1, 2)
         )
     )
 
-    mugrade.submit(gradient_check(ndl.log, ndl.Tensor(10 + np.random.rand(5, 4))))
-    mugrade.submit(gradient_check(ndl.exp, ndl.Tensor(1.5 + np.random.rand(5, 4))))
+    mugrade.submit(gradient_check(nyan.log, nyan.Tensor(10 + np.random.rand(5, 4))))
+    mugrade.submit(gradient_check(nyan.exp, nyan.Tensor(1.5 + np.random.rand(5, 4))))
     mugrade.submit(
         gradient_check(
-            ndl.power,
-            ndl.Tensor([[4.0, 5.0, 6.0]]), 
-            ndl.Tensor(np.ones((1,3))*2),
+            nyan.power,
+            nyan.Tensor([[4.0, 5.0, 6.0]]), 
+            nyan.Tensor(np.ones((1,3))*2),
         )
     )
 
@@ -710,7 +710,7 @@ def submit_backward():
 
 def test_topo_sort():
     # Test case 1
-    a1, b1 = ndl.Tensor(np.asarray([[0.88282157]])), ndl.Tensor(
+    a1, b1 = nyan.Tensor(np.asarray([[0.88282157]])), nyan.Tensor(
         np.asarray([[0.90170084]])
     )
     c1 = 3 * a1 * a1 + 4 * b1 * a1 - a1
@@ -729,13 +729,13 @@ def test_topo_sort():
         ]
     )
 
-    topo_order = np.array([x.numpy() for x in ndl.autograd.find_topo_sort([c1])])
+    topo_order = np.array([x.numpy() for x in nyan.autograd.find_topo_sort([c1])])
 
     assert len(soln) == len(topo_order)
     np.testing.assert_allclose(topo_order, soln, rtol=1e-06, atol=1e-06)
 
     # Test case 2
-    a1, b1 = ndl.Tensor(np.asarray([[0.20914675], [0.65264178]])), ndl.Tensor(
+    a1, b1 = nyan.Tensor(np.asarray([[0.20914675], [0.65264178]])), nyan.Tensor(
         np.asarray([[0.65394286, 0.08218317]])
     )
     c1 = 3 * ((b1 @ a1) + (2.3412 * b1) @ a1) + 1.5
@@ -751,7 +751,7 @@ def test_topo_sort():
         np.array([[3.40855553]]),
     ]
 
-    topo_order = [x.numpy() for x in ndl.autograd.find_topo_sort([c1])]
+    topo_order = [x.numpy() for x in nyan.autograd.find_topo_sort([c1])]
 
     assert len(soln) == len(topo_order)
     # step through list as entries differ in length
@@ -759,11 +759,11 @@ def test_topo_sort():
         np.testing.assert_allclose(t, s, rtol=1e-06, atol=1e-06)
 
     # Test case 3
-    a = ndl.Tensor(np.asarray([[1.4335016, 0.30559972], [0.08130171, -1.15072371]]))
-    b = ndl.Tensor(np.asarray([[1.34571691, -0.95584433], [-0.99428573, -0.04017499]]))
+    a = nyan.Tensor(np.asarray([[1.4335016, 0.30559972], [0.08130171, -1.15072371]]))
+    b = nyan.Tensor(np.asarray([[1.34571691, -0.95584433], [-0.99428573, -0.04017499]]))
     e = (a @ b + b - a) @ a
 
-    topo_order = np.array([x.numpy() for x in ndl.autograd.find_topo_sort([e])])
+    topo_order = np.array([x.numpy() for x in nyan.autograd.find_topo_sort([e])])
 
     soln = np.array(
         [
@@ -783,31 +783,31 @@ def test_topo_sort():
 
 def submit_topo_sort():
     # mugrade test case 1
-    a2, b2 = ndl.Tensor(np.asarray([[0.74683138]])), ndl.Tensor(
+    a2, b2 = nyan.Tensor(np.asarray([[0.74683138]])), nyan.Tensor(
         np.asarray([[0.65539231]])
     )
     c2 = 9 * a2 * a2 + 15 * b2 * a2 - b2
 
-    topo_order = np.array([x.numpy() for x in ndl.autograd.find_topo_sort([c2])])
+    topo_order = np.array([x.numpy() for x in nyan.autograd.find_topo_sort([c2])])
 
     mugrade.submit(topo_order)
 
     # mugrade test case 2
-    a1, b1 = ndl.Tensor(np.asarray([[0.9067453], [0.18521121]])), ndl.Tensor(
+    a1, b1 = nyan.Tensor(np.asarray([[0.9067453], [0.18521121]])), nyan.Tensor(
         np.asarray([[0.80992494, 0.52458167]])
     )
     c1 = 3 * ((b1 @ a1) + (2.3412 * b1) @ a1) + 1.5
 
-    topo_order2 = [x.numpy() for x in ndl.autograd.find_topo_sort([c1])]
+    topo_order2 = [x.numpy() for x in nyan.autograd.find_topo_sort([c1])]
 
     mugrade.submit(topo_order2)
 
     # mugrade test case 3
-    c = ndl.Tensor(np.asarray([[-0.16541387, 2.52604789], [-0.31008569, -0.4748876]]))
-    d = ndl.Tensor(np.asarray([[0.55936155, -2.12630983], [0.59930618, -0.19554253]]))
+    c = nyan.Tensor(np.asarray([[-0.16541387, 2.52604789], [-0.31008569, -0.4748876]]))
+    d = nyan.Tensor(np.asarray([[0.55936155, -2.12630983], [0.59930618, -0.19554253]]))
     f = (c + d @ d - d) @ c
 
-    topo_order3 = np.array([x.numpy() for x in ndl.autograd.find_topo_sort([f])])
+    topo_order3 = np.array([x.numpy() for x in nyan.autograd.find_topo_sort([f])])
 
     mugrade.submit(topo_order3)
 
@@ -818,31 +818,31 @@ def submit_topo_sort():
 
 def test_compute_gradient():
     gradient_check(
-        lambda A, B, C: ndl.summation((A @ B + C) * (A @ B), axes=None),
-        ndl.Tensor(np.random.randn(10, 9)),
-        ndl.Tensor(np.random.randn(9, 8)),
-        ndl.Tensor(np.random.randn(10, 8)),
+        lambda A, B, C: nyan.summation((A @ B + C) * (A @ B), axes=None),
+        nyan.Tensor(np.random.randn(10, 9)),
+        nyan.Tensor(np.random.randn(9, 8)),
+        nyan.Tensor(np.random.randn(10, 8)),
         backward=True,
     )
     gradient_check(
-        lambda A, B: ndl.summation(ndl.broadcast_to(A, shape=(10, 9)) * B, axes=None),
-        ndl.Tensor(np.random.randn(10, 1)),
-        ndl.Tensor(np.random.randn(10, 9)),
+        lambda A, B: nyan.summation(nyan.broadcast_to(A, shape=(10, 9)) * B, axes=None),
+        nyan.Tensor(np.random.randn(10, 1)),
+        nyan.Tensor(np.random.randn(10, 9)),
         backward=True,
     )
     gradient_check(
-        lambda A, B, C: ndl.summation(
-            ndl.reshape(A, shape=(10, 10)) @ B / 5 + C, axes=None
+        lambda A, B, C: nyan.summation(
+            nyan.reshape(A, shape=(10, 10)) @ B / 5 + C, axes=None
         ),
-        ndl.Tensor(np.random.randn(100)),
-        ndl.Tensor(np.random.randn(10, 5)),
-        ndl.Tensor(np.random.randn(10, 5)),
+        nyan.Tensor(np.random.randn(100)),
+        nyan.Tensor(np.random.randn(10, 5)),
+        nyan.Tensor(np.random.randn(10, 5)),
         backward=True,
     )
 
     # check gradient of gradient
-    x2 = ndl.Tensor([6])
-    x3 = ndl.Tensor([0])
+    x2 = nyan.Tensor([6])
+    x3 = nyan.Tensor([0])
     y = x2 * x2 + x2 * x3
     y.backward()
     grad_x2 = x2.grad
@@ -861,16 +861,16 @@ def test_compute_gradient():
 
 
 def submit_compute_gradient():
-    a = ndl.Tensor(np.array([[-0.2985143, 0.36875625], [-0.918687, 0.52262925]]))
-    b = ndl.Tensor(np.array([[-1.58839928, 1.58592338], [-0.15932137, -0.55618462]]))
-    c = ndl.Tensor(np.array([[-0.5096208, 0.73466865], [0.38762148, -0.41149092]]))
+    a = nyan.Tensor(np.array([[-0.2985143, 0.36875625], [-0.918687, 0.52262925]]))
+    b = nyan.Tensor(np.array([[-1.58839928, 1.58592338], [-0.15932137, -0.55618462]]))
+    c = nyan.Tensor(np.array([[-0.5096208, 0.73466865], [0.38762148, -0.41149092]]))
     d = (a + b) @ c @ (a + c)
     d.backward()
     grads = [x.grad.numpy() for x in [a, b, c]]
     mugrade.submit(grads)
 
     # just need a fixed function or two to send results to mugrade
-    a = ndl.Tensor(
+    a = nyan.Tensor(
         np.array(
             [
                 [0.4736625, 0.06895066, 1.36455087, -0.31170743, 0.1370395],
@@ -880,7 +880,7 @@ def submit_compute_gradient():
             ]
         )
     )
-    b = ndl.Tensor(
+    b = nyan.Tensor(
         np.array(
             [
                 [0.28738358, -1.27265428, 0.32388374],
@@ -891,7 +891,7 @@ def submit_compute_gradient():
             ]
         )
     )
-    c = ndl.Tensor(
+    c = nyan.Tensor(
         np.array(
             [
                 [1.25727301, 0.39400789, 1.29139323, -0.950472],
@@ -900,13 +900,13 @@ def submit_compute_gradient():
             ]
         )
     )
-    output = ndl.summation((a @ b) @ c @ a)
+    output = nyan.summation((a @ b) @ c @ a)
     output.backward()
     grads = [x.grad.numpy() for x in [a, b, c]]
     mugrade.submit(grads)
 
-    x2 = ndl.Tensor(3)
-    x3 = ndl.Tensor(2)
+    x2 = nyan.Tensor(3)
+    x3 = nyan.Tensor(2)
     y = x2 * x2 - x2 * x3
     y.backward()
     grad_x2 = x2.grad
@@ -930,39 +930,39 @@ def submit_compute_gradient():
 def test_softmax_loss_ndl():
     # test forward pass for log
     np.testing.assert_allclose(
-        ndl.log(ndl.Tensor([[4.0], [4.55]])).numpy(),
+        nyan.log(nyan.Tensor([[4.0], [4.55]])).numpy(),
         np.array([[1.38629436112], [1.515127232963]]),
     )
 
     # test backward pass for log
-    gradient_check(ndl.log, ndl.Tensor(1 + np.random.rand(5, 4)))
+    gradient_check(nyan.log, nyan.Tensor(1 + np.random.rand(5, 4)))
 
     X, y = parse_mnist(
         "data/train-images-idx3-ubyte.gz", "data/train-labels-idx1-ubyte.gz"
     )
     np.random.seed(0)
-    Z = ndl.Tensor(np.zeros((y.shape[0], 10)).astype(np.float32))
+    Z = nyan.Tensor(np.zeros((y.shape[0], 10)).astype(np.float32))
     y_one_hot = np.zeros((y.shape[0], 10))
     y_one_hot[np.arange(y.size), y] = 1
-    y = ndl.Tensor(y_one_hot)
+    y = nyan.Tensor(y_one_hot)
     np.testing.assert_allclose(
         softmax_loss(Z, y).numpy(), 2.3025850, rtol=1e-6, atol=1e-6
     )
-    Z = ndl.Tensor(np.random.randn(y.shape[0], 10).astype(np.float32))
+    Z = nyan.Tensor(np.random.randn(y.shape[0], 10).astype(np.float32))
     np.testing.assert_allclose(
         softmax_loss(Z, y).numpy(), 2.7291998, rtol=1e-6, atol=1e-6
     )
 
     # test softmax loss backward
-    Zsmall = ndl.Tensor(np.random.randn(16, 10).astype(np.float32))
-    ysmall = ndl.Tensor(y_one_hot[:16])
+    Zsmall = nyan.Tensor(np.random.randn(16, 10).astype(np.float32))
+    ysmall = nyan.Tensor(y_one_hot[:16])
     gradient_check(softmax_loss, Zsmall, ysmall, tol=0.01, backward=True)
 
 
 def submit_softmax_loss_ndl():
     # add a mugrade submit for log
     np.random.seed(0)
-    mugrade.submit(gradient_check(ndl.log, ndl.Tensor(1 + np.random.rand(5, 4))))
+    mugrade.submit(gradient_check(nyan.log, nyan.Tensor(1 + np.random.rand(5, 4))))
 
     X, y = parse_mnist(
         "data/t10k-images-idx3-ubyte.gz", "data/t10k-labels-idx1-ubyte.gz"
@@ -970,16 +970,16 @@ def submit_softmax_loss_ndl():
 
     y_one_hot = np.zeros((y.shape[0], 10))
     y_one_hot[np.arange(y.size), y] = 1
-    y = ndl.Tensor(y_one_hot)
+    y = nyan.Tensor(y_one_hot)
     mugrade.submit(
         softmax_loss(
-            ndl.Tensor(np.zeros((y.shape[0], 10)).astype(np.float32)), y
+            nyan.Tensor(np.zeros((y.shape[0], 10)).astype(np.float32)), y
         ).numpy()
     )
     np.random.seed(0)
     mugrade.submit(
         softmax_loss(
-            ndl.Tensor(np.random.randn(y.shape[0], 10).astype(np.float32)), y
+            nyan.Tensor(np.random.randn(y.shape[0], 10).astype(np.float32)), y
         ).numpy()
     )
 
@@ -991,8 +991,8 @@ def submit_softmax_loss_ndl():
 def test_nn_epoch_ndl():
     # test forward/backward pass for relu
     np.testing.assert_allclose(
-        ndl.relu(
-            ndl.Tensor(
+        nyan.relu(
+            nyan.Tensor(
                 [
                     [-46.9, -48.8, -45.45, -49.0],
                     [-49.75, -48.75, -45.8, -49.25],
@@ -1002,7 +1002,7 @@ def test_nn_epoch_ndl():
         ).numpy(),
         np.array([[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]),
     )
-    gradient_check(ndl.relu, ndl.Tensor(np.random.randn(5, 4)))
+    gradient_check(nyan.relu, nyan.Tensor(np.random.randn(5, 4)))
 
     # test nn gradients
     np.random.seed(0)
@@ -1011,20 +1011,20 @@ def test_nn_epoch_ndl():
     W1 = np.random.randn(5, 10).astype(np.float32) / np.sqrt(10)
     W2 = np.random.randn(10, 3).astype(np.float32) / np.sqrt(3)
     W1_0, W2_0 = W1.copy(), W2.copy()
-    W1 = ndl.Tensor(W1)
-    W2 = ndl.Tensor(W2)
-    X_ = ndl.Tensor(X)
+    W1 = nyan.Tensor(W1)
+    W2 = nyan.Tensor(W2)
+    X_ = nyan.Tensor(X)
     y_one_hot = np.zeros((y.shape[0], 3))
     y_one_hot[np.arange(y.size), y] = 1
-    y_ = ndl.Tensor(y_one_hot)
+    y_ = nyan.Tensor(y_one_hot)
     dW1 = nd.Gradient(
         lambda W1_: softmax_loss(
-            ndl.relu(X_ @ ndl.Tensor(W1_).reshape((5, 10))) @ W2, y_
+            nyan.relu(X_ @ nyan.Tensor(W1_).reshape((5, 10))) @ W2, y_
         ).numpy()
     )(W1.numpy())
     dW2 = nd.Gradient(
         lambda W2_: softmax_loss(
-            ndl.relu(X_ @ W1) @ ndl.Tensor(W2_).reshape((10, 3)), y_
+            nyan.relu(X_ @ W1) @ nyan.Tensor(W2_).reshape((10, 3)), y_
         ).numpy()
     )(W2.numpy())
     W1, W2 = nn_epoch(X, y, W1, W2, lr=1.0, batch=50)
@@ -1040,8 +1040,8 @@ def test_nn_epoch_ndl():
         "data/train-images-idx3-ubyte.gz", "data/train-labels-idx1-ubyte.gz"
     )
     np.random.seed(0)
-    W1 = ndl.Tensor(np.random.randn(X.shape[1], 100).astype(np.float32) / np.sqrt(100))
-    W2 = ndl.Tensor(np.random.randn(100, 10).astype(np.float32) / np.sqrt(10))
+    W1 = nyan.Tensor(np.random.randn(X.shape[1], 100).astype(np.float32) / np.sqrt(100))
+    W2 = nyan.Tensor(np.random.randn(100, 10).astype(np.float32) / np.sqrt(10))
     W1, W2 = nn_epoch(X, y, W1, W2, lr=0.2, batch=100)
     np.testing.assert_allclose(
         np.linalg.norm(W1.numpy()), 28.437788, rtol=1e-5, atol=1e-5
@@ -1050,7 +1050,7 @@ def test_nn_epoch_ndl():
         np.linalg.norm(W2.numpy()), 10.455095, rtol=1e-5, atol=1e-5
     )
     np.testing.assert_allclose(
-        loss_err(ndl.relu(ndl.Tensor(X) @ W1) @ W2, y),
+        loss_err(nyan.relu(nyan.Tensor(X) @ W1) @ W2, y),
         (0.19770025, 0.06006667),
         rtol=1e-4,
         atol=1e-4,
@@ -1062,18 +1062,18 @@ def submit_nn_epoch_ndl():
         "data/train-images-idx3-ubyte.gz", "data/train-labels-idx1-ubyte.gz"
     )
     np.random.seed(1)
-    W1 = ndl.Tensor(np.random.randn(X.shape[1], 100).astype(np.float32) / np.sqrt(100))
-    W2 = ndl.Tensor(np.random.randn(100, 10).astype(np.float32) / np.sqrt(10))
+    W1 = nyan.Tensor(np.random.randn(X.shape[1], 100).astype(np.float32) / np.sqrt(100))
+    W2 = nyan.Tensor(np.random.randn(100, 10).astype(np.float32) / np.sqrt(10))
     W1, W2 = nn_epoch(X[:100], y[:100], W1, W2, lr=0.1, batch=100)
 
     mugrade.submit(np.linalg.norm(W1.numpy()))
     mugrade.submit(np.linalg.norm(W2.numpy()))
 
     np.random.seed(1)
-    W1 = ndl.Tensor(np.random.randn(X.shape[1], 100).astype(np.float32) / np.sqrt(100))
-    W2 = ndl.Tensor(np.random.randn(100, 10).astype(np.float32) / np.sqrt(10))
+    W1 = nyan.Tensor(np.random.randn(X.shape[1], 100).astype(np.float32) / np.sqrt(100))
+    W2 = nyan.Tensor(np.random.randn(100, 10).astype(np.float32) / np.sqrt(10))
     W1, W2 = nn_epoch(X, y, W1, W2, lr=0.2, batch=100)
 
     mugrade.submit(np.linalg.norm(W1.numpy()))
     mugrade.submit(np.linalg.norm(W2.numpy()))
-    mugrade.submit(loss_err(ndl.Tensor(np.maximum(X @ W1.numpy(), 0)) @ W2, y))
+    mugrade.submit(loss_err(nyan.Tensor(np.maximum(X @ W1.numpy(), 0)) @ W2, y))

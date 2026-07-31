@@ -1,5 +1,5 @@
 """Optimization module"""
-import nyangrad as ndl
+import nyangrad as nyan
 import numpy as np
 
 

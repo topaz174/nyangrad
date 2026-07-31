@@ -20,8 +20,9 @@ data loader) to actually train models end to end. The MNIST MLP-ResNet in `examp
   decay).
 - `nyangrad/data.py` - the Dataset / DataLoader abstractions, a couple of image transforms, and the
   MNIST loader.
-- `nyangrad/backend.py` - a tiny device abstraction. Right now there is only a NumPy CPU device, but the
-  tensor code goes through this layer so a different backend could be dropped in later.
+- `nyangrad/backend.py` - a tiny device abstraction. Every tensor op goes through this layer, which is
+  what makes it possible to swap in the C++/CUDA tensor backend I'm currently building (an `NDArray`
+  class backed by hand-written C++ kernels instead of NumPy) without touching the ops or autograd code.
 - `examples/` - training scripts. `mlp_resnet.py` builds and trains the MLP-ResNet on MNIST,
   `two_layer_net.py` is a plain two layer network written directly against the autograd engine.
 - `tests/` - the correctness tests I used while building this. They check forward values, and check every
@@ -90,13 +91,13 @@ pip install -e .
 A quick taste of the autograd:
 
 ```python
-import nyangrad as ndl
+import nyangrad as nyan
 import numpy as np
 
-x = ndl.Tensor(np.random.randn(3, 4))
-w = ndl.Tensor(np.random.randn(4, 2))
+x = nyan.Tensor(np.random.randn(3, 4))
+w = nyan.Tensor(np.random.randn(4, 2))
 
-y = ndl.relu(x @ w).sum()
+y = nyan.relu(x @ w).sum()
 y.backward()
 
 print(x.grad.shape)  # (3, 4)

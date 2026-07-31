@@ -1,11 +1,11 @@
 import numpy as np
 import mugrade
 
-import nyangrad as ndl
+import nyangrad as nyan
 
 
 def test_flip_horizontal():
-    tform = ndl.data.RandomFlipHorizontal()
+    tform = nyan.data.RandomFlipHorizontal()
     np.random.seed(0)
     a = np.array(
         [
@@ -1424,7 +1424,7 @@ def test_flip_horizontal():
 
 # ----------------------------------------------------------------------------
 def submit_flip_horizontal():
-    tform = ndl.data.RandomFlipHorizontal(0.5)
+    tform = nyan.data.RandomFlipHorizontal(0.5)
     np.random.seed(0)
     for _ in range(2):
         size_a, size_b, size_c = (
@@ -1434,7 +1434,7 @@ def submit_flip_horizontal():
         )
         mugrade.submit(tform(np.random.rand(size_a, size_b, size_c)))
 
-    tform = ndl.data.RandomFlipHorizontal(0)
+    tform = nyan.data.RandomFlipHorizontal(0)
     for _ in range(2):
         size_a, size_b, size_c = (
             np.random.randint(1, 5),
@@ -1443,7 +1443,7 @@ def submit_flip_horizontal():
         )
         mugrade.submit(tform(np.random.rand(size_a, size_b, size_c)))
 
-    tform = ndl.data.RandomFlipHorizontal(1.0)
+    tform = nyan.data.RandomFlipHorizontal(1.0)
     for _ in range(2):
         size_a, size_b, size_c = (
             np.random.randint(1, 5),
@@ -1454,7 +1454,7 @@ def submit_flip_horizontal():
 
 
 def test_random_crop():
-    tform = ndl.data.RandomCrop(2)
+    tform = nyan.data.RandomCrop(2)
     np.random.seed(0)
     a = np.array(
         [
@@ -2214,7 +2214,7 @@ def test_random_crop():
     )
     np.testing.assert_allclose(tform(a), b)
 
-    tform = ndl.data.RandomCrop(4)
+    tform = nyan.data.RandomCrop(4)
     np.random.seed(0)
     a = np.array(
         [
@@ -3052,7 +3052,7 @@ def test_random_crop():
     )
     np.testing.assert_allclose(tform(a), b)
 
-    tform = ndl.data.RandomCrop(4)
+    tform = nyan.data.RandomCrop(4)
     np.random.seed(0)
     a = np.array(
         [
@@ -5104,7 +5104,7 @@ def test_random_crop():
     )
     np.testing.assert_allclose(tform(a), b)
 
-    tform = ndl.data.RandomCrop(4)
+    tform = nyan.data.RandomCrop(4)
     np.random.seed(0)
     a = np.array(
         [
@@ -5391,7 +5391,7 @@ def test_random_crop():
     )
     np.testing.assert_allclose(tform(a), b)
 
-    tform = ndl.data.RandomCrop(8)
+    tform = nyan.data.RandomCrop(8)
     np.random.seed(0)
     a = np.array(
         [
@@ -5711,7 +5711,7 @@ def test_random_crop():
     )
     np.testing.assert_allclose(tform(a), b)
 
-    tform = ndl.data.RandomCrop(1)
+    tform = nyan.data.RandomCrop(1)
     np.random.seed(0)
     a = np.array(
         [
@@ -6024,7 +6024,7 @@ def test_random_crop():
     )
     np.testing.assert_allclose(tform(a), b)
 
-    tform = ndl.data.RandomCrop(2)
+    tform = nyan.data.RandomCrop(2)
     np.random.seed(0)
     a = np.array(
         [
@@ -6258,7 +6258,7 @@ def test_random_crop():
     )
     np.testing.assert_allclose(tform(a), b)
 
-    tform = ndl.data.RandomCrop(1)
+    tform = nyan.data.RandomCrop(1)
     np.random.seed(0)
     a = np.array(
         [
@@ -9842,7 +9842,7 @@ def test_random_crop():
     )
     np.testing.assert_allclose(tform(a), b)
 
-    tform = ndl.data.RandomCrop(5)
+    tform = nyan.data.RandomCrop(5)
     np.random.seed(0)
     a = np.array(
         [
@@ -10238,7 +10238,7 @@ def test_random_crop():
     )
     np.testing.assert_allclose(tform(a), b)
 
-    tform = ndl.data.RandomCrop(8)
+    tform = nyan.data.RandomCrop(8)
     np.random.seed(0)
     a = np.array(
         [
@@ -10653,7 +10653,7 @@ def test_random_crop():
 
 def submit_random_crop():
     np.random.seed(0)
-    tform = ndl.data.RandomCrop(0)
+    tform = nyan.data.RandomCrop(0)
     for _ in range(2):
         size_a, size_b, size_c = (
             np.random.randint(4, 5),
@@ -10662,7 +10662,7 @@ def submit_random_crop():
         )
         mugrade.submit(tform(np.random.rand(size_a, size_b, size_c)))
 
-    tform = ndl.data.RandomCrop(2)
+    tform = nyan.data.RandomCrop(2)
     for _ in range(2):
         size_a, size_b, size_c = (
             np.random.randint(4, 5),
@@ -10671,7 +10671,7 @@ def submit_random_crop():
         )
         mugrade.submit(tform(np.random.rand(size_a, size_b, size_c)))
 
-    tform = ndl.data.RandomCrop(3)
+    tform = nyan.data.RandomCrop(3)
     for _ in range(2):
         ize_a, size_b, size_c = (
             np.random.randint(4, 5),
@@ -10683,7 +10683,7 @@ def submit_random_crop():
 
 def test_mnist_dataset():
     # Test dataset sizing
-    mnist_train_dataset = ndl.data.MNISTDataset(
+    mnist_train_dataset = nyan.data.MNISTDataset(
         "data/train-images-idx3-ubyte.gz", "data/train-labels-idx1-ubyte.gz"
     )
     assert len(mnist_train_dataset) == 60000
@@ -10717,7 +10717,7 @@ def test_mnist_dataset():
     np.testing.assert_allclose(sample_norms, compare_against)
     np.testing.assert_allclose(sample_labels, compare_labels)
 
-    mnist_train_dataset = ndl.data.MNISTDataset(
+    mnist_train_dataset = nyan.data.MNISTDataset(
         "data/t10k-images-idx3-ubyte.gz", "data/t10k-labels-idx1-ubyte.gz"
     )
     assert len(mnist_train_dataset) == 10000
@@ -10744,8 +10744,8 @@ def test_mnist_dataset():
 
     # test a transform
     np.random.seed(0)
-    tforms = [ndl.data.RandomCrop(28), ndl.data.RandomFlipHorizontal()]
-    mnist_train_dataset = ndl.data.MNISTDataset(
+    tforms = [nyan.data.RandomCrop(28), nyan.data.RandomFlipHorizontal()]
+    mnist_train_dataset = nyan.data.MNISTDataset(
         "data/train-images-idx3-ubyte.gz",
         "data/train-labels-idx1-ubyte.gz",
         transforms=tforms,
@@ -10772,8 +10772,8 @@ def test_mnist_dataset():
     np.testing.assert_allclose(sample_labels, compare_labels)
 
     # test a transform
-    tforms = [ndl.data.RandomCrop(12), ndl.data.RandomFlipHorizontal(0.4)]
-    mnist_train_dataset = ndl.data.MNISTDataset(
+    tforms = [nyan.data.RandomCrop(12), nyan.data.RandomFlipHorizontal(0.4)]
+    mnist_train_dataset = nyan.data.MNISTDataset(
         "data/train-images-idx3-ubyte.gz",
         "data/train-labels-idx1-ubyte.gz",
         transforms=tforms,
@@ -10809,14 +10809,14 @@ def test_mnist_dataset():
 
 
 def submit_mnist_dataset():
-    mnist_train_dataset = ndl.data.MNISTDataset(
+    mnist_train_dataset = nyan.data.MNISTDataset(
         "data/train-images-idx3-ubyte.gz", "data/train-labels-idx1-ubyte.gz"
     )
     mugrade.submit(mnist_train_dataset[69][:25])
     mugrade.submit(len(mnist_train_dataset))
     np.random.seed(0)
-    tforms = [ndl.data.RandomFlipHorizontal()]
-    mnist_train_dataset = ndl.data.MNISTDataset(
+    tforms = [nyan.data.RandomFlipHorizontal()]
+    mnist_train_dataset = nyan.data.MNISTDataset(
         "data/train-images-idx3-ubyte.gz",
         "data/train-labels-idx1-ubyte.gz",
         transforms=tforms,
@@ -10825,8 +10825,8 @@ def submit_mnist_dataset():
     for i in [822, 69, 420, 96]:
         mugrade.submit(mnist_train_dataset[i][:-25])
 
-    tforms = [ndl.data.RandomCrop(15), ndl.data.RandomFlipHorizontal()]
-    mnist_train_dataset = ndl.data.MNISTDataset(
+    tforms = [nyan.data.RandomCrop(15), nyan.data.RandomFlipHorizontal()]
+    mnist_train_dataset = nyan.data.MNISTDataset(
         "data/train-images-idx3-ubyte.gz",
         "data/train-labels-idx1-ubyte.gz",
         transforms=tforms,
@@ -10838,10 +10838,10 @@ def submit_mnist_dataset():
 
 def test_dataloader_mnist():
     batch_size = 1
-    mnist_train_dataset = ndl.data.MNISTDataset(
+    mnist_train_dataset = nyan.data.MNISTDataset(
         "data/train-images-idx3-ubyte.gz", "data/train-labels-idx1-ubyte.gz"
     )
-    mnist_train_dataloader = ndl.data.DataLoader(
+    mnist_train_dataloader = nyan.data.DataLoader(
         dataset=mnist_train_dataset, batch_size=batch_size, shuffle=False
     )
 
@@ -10855,10 +10855,10 @@ def test_dataloader_mnist():
         np.testing.assert_allclose(batch_y, truth_y)
 
     batch_size = 5
-    mnist_test_dataset = ndl.data.MNISTDataset(
+    mnist_test_dataset = nyan.data.MNISTDataset(
         "data/t10k-images-idx3-ubyte.gz", "data/t10k-labels-idx1-ubyte.gz"
     )
-    mnist_test_dataloader = ndl.data.DataLoader(
+    mnist_test_dataloader = nyan.data.DataLoader(
         dataset=mnist_test_dataset, batch_size=batch_size, shuffle=False
     )
 
@@ -10871,10 +10871,10 @@ def test_dataloader_mnist():
         np.testing.assert_allclose(truth_x, batch_x)
         np.testing.assert_allclose(batch_y, truth_y)
 
-    noshuf = bat9 = ndl.data.DataLoader(
+    noshuf = bat9 = nyan.data.DataLoader(
         dataset=mnist_test_dataset, batch_size=10, shuffle=False
     )
-    shuf = bat9 = ndl.data.DataLoader(
+    shuf = bat9 = nyan.data.DataLoader(
         dataset=mnist_test_dataset, batch_size=10, shuffle=True
     )
     diff = False
@@ -10889,8 +10889,8 @@ def test_dataloader_ndarray():
     for batch_size in [1, 10, 100]:
         np.random.seed(0)
 
-        train_dataset = ndl.data.NDArrayDataset(np.random.rand(100, 10, 10))
-        train_dataloader = ndl.data.DataLoader(
+        train_dataset = nyan.data.NDArrayDataset(np.random.rand(100, 10, 10))
+        train_dataloader = nyan.data.DataLoader(
             dataset=train_dataset, batch_size=batch_size, shuffle=False
         )
 
@@ -10903,13 +10903,13 @@ def test_dataloader_ndarray():
 
     batch_size = 1
     np.random.seed(0)
-    train_dataset = ndl.data.NDArrayDataset(
+    train_dataset = nyan.data.NDArrayDataset(
         np.arange(
             100,
         )
     )
     train_dataloader = iter(
-        ndl.data.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
+        nyan.data.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
     )
 
     elements = np.array([next(train_dataloader)[0].numpy().item() for _ in range(10)])
@@ -10918,13 +10918,13 @@ def test_dataloader_ndarray():
     )
 
     batch_size = 10
-    train_dataset = ndl.data.NDArrayDataset(
+    train_dataset = nyan.data.NDArrayDataset(
         np.arange(
             100,
         )
     )
     train_dataloader = iter(
-        ndl.data.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
+        nyan.data.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
     )
 
     elements = np.array(
@@ -10951,10 +10951,10 @@ def test_dataloader_ndarray():
 
 def submit_dataloader():
     batch_size = 1
-    mnist_train_dataset = ndl.data.MNISTDataset(
+    mnist_train_dataset = nyan.data.MNISTDataset(
         "data/train-images-idx3-ubyte.gz", "data/train-labels-idx1-ubyte.gz"
     )
-    mnist_train_dataloader = ndl.data.DataLoader(
+    mnist_train_dataloader = nyan.data.DataLoader(
         dataset=mnist_train_dataset, batch_size=batch_size, shuffle=False
     )
     subl = []
@@ -10967,10 +10967,10 @@ def submit_dataloader():
     mugrade.submit(subl)
 
     batch_size = 5
-    mnist_test_dataset = ndl.data.MNISTDataset(
+    mnist_test_dataset = nyan.data.MNISTDataset(
         "data/t10k-images-idx3-ubyte.gz", "data/t10k-labels-idx1-ubyte.gz"
     )
-    mnist_test_dataloader = ndl.data.DataLoader(
+    mnist_test_dataloader = nyan.data.DataLoader(
         dataset=mnist_test_dataset, batch_size=batch_size, shuffle=False
     )
 
@@ -10985,7 +10985,7 @@ def submit_dataloader():
     mugrade.submit(subl_y[-2:])
 
     np.random.seed(0)
-    shuf = ndl.data.DataLoader(dataset=mnist_test_dataset, batch_size=10, shuffle=True)
+    shuf = nyan.data.DataLoader(dataset=mnist_test_dataset, batch_size=10, shuffle=True)
     subl_x = []
     subl_y = []
     for i, batch in enumerate(mnist_test_dataloader):
