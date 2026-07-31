@@ -123,12 +123,3 @@ through the engine, compute a finite-difference numerical gradient, and assert t
 optimizer tests go further and check exact forward and backward values, running statistics, training and
 eval mode behavior, and that a few small models actually train down in loss. Division is done in float32,
 so its numerical gradient check runs at a float32-appropriate tolerance.
-
-
-## Notes
-
-- It is CPU and NumPy only. It is built for clarity, not speed, and there is no GPU backend (though the
-  device layer is there so one could be added).
-- This project grew out of working through CMU's 10-714 (Deep Learning Systems). I used the course as the
-  roadmap for what to build and in what order, then wrote and organized the implementation as its own
-  standalone framework.
