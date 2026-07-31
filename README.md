@@ -1,6 +1,6 @@
 # nyangrad
 
-nyangrad is a small deep learning framework I wrote from scratch on top of NumPy. It has its own
+nyangrad is a PyTorch-style deep learning framework I wrote from scratch. It has its own
 reverse-mode automatic differentiation engine, a tensor type that records a computation graph as you
 use it, and enough of a neural network library on top (layers, losses, initializers, optimizers, a
 data loader) to actually train models end to end. The MNIST MLP-ResNet in `examples/` trains with it.
