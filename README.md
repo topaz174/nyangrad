@@ -1,6 +1,6 @@
 # nyangrad
 
-nyangrad is a PyTorch-style deep learning framework I wrote from scratch, taking inspiration from the architecture in CMU 10-414/714. It has its own
+nyangrad is a PyTorch-style deep learning framework I wrote from scratch, taking inspiration from the architecture in CMU 10-414/714 (graduate level ML systems course). It has its own
 reverse-mode automatic differentiation engine, a tensor type that records a computation graph as you
 use it, and enough of a neural network library on top (layers, losses, initializers, optimizers, a
 data loader) to actually train models end to end. The MNIST MLP-ResNet in `examples/` trains with it.
