@@ -62,7 +62,28 @@ void Compact(const AlignedArray& a, AlignedArray* out, std::vector<int32_t> shap
    *  function will implement here, so we won't repeat this note.)
    */
   /// BEGIN SOLUTION
-  assert(false && "Not Implemented");
+  size_t ndim = shape.size();
+  std::vector<int32_t> position(ndim, 0);
+
+  for (size_t i = 0; i < out->size; i++) {
+    size_t aIdx = offset;
+    size_t pIdx = ndim - 1;
+
+    // freshly calculate index
+    for (size_t j = 0; j < ndim; j++) {
+      aIdx += position[j] * strides[j];
+    }
+
+    out->ptr[i] = a.ptr[aIdx];
+
+    // increment the vector cleanly
+    while (pIdx > 0 && position[pIdx] >= shape[pIdx] - 1) {
+      position[pIdx] = 0;
+      pIdx--;
+    }
+
+    position[pIdx]++;
+  }
   /// END SOLUTION
 }
 
@@ -100,7 +121,8 @@ void ScalarSetitem(const size_t size, scalar_t val, AlignedArray* out, std::vect
    */
 
   /// BEGIN SOLUTION
-  assert(false && "Not Implemented");
+
+  
   /// END SOLUTION
 }
 
