@@ -129,6 +129,19 @@ ndarray_backend_cpu/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ndarray_backend_cpu.dir/build.make CMakeFiles/ndarray_backend_cpu.dir/build
 .PHONY : ndarray_backend_cpu/fast
 
+#=============================================================================
+# Target rules for targets named ndarray_backend_cuda
+
+# Build rule for target.
+ndarray_backend_cuda: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ndarray_backend_cuda
+.PHONY : ndarray_backend_cuda
+
+# fast build rule for target.
+ndarray_backend_cuda/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ndarray_backend_cuda.dir/build.make CMakeFiles/ndarray_backend_cuda.dir/build
+.PHONY : ndarray_backend_cuda/fast
+
 src/ndarray_backend_cpu.o: src/ndarray_backend_cpu.cc.o
 .PHONY : src/ndarray_backend_cpu.o
 
@@ -162,6 +175,7 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... ndarray_backend_cpu"
+	@echo "... ndarray_backend_cuda"
 	@echo "... src/ndarray_backend_cpu.o"
 	@echo "... src/ndarray_backend_cpu.i"
 	@echo "... src/ndarray_backend_cpu.s"

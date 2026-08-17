@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = -Dndarray_backend_cpu_EXPORTS
 
-CXX_INCLUDES = -isystem /usr/include/python3.10 -isystem /home/alex/.local/lib/python3.10/site-packages/pybind11/include
+CXX_INCLUDES = -isystem /usr/include/python3.10 -isystem /home/alex/.local/lib/python3.10/site-packages/pybind11/include -isystem /usr/local/cuda/include
 
 CXX_FLAGS = -std=c++11 -O2 -march=native  -fPIC -fvisibility=hidden
 

@@ -16,18 +16,23 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/home/alex/.local/lib/python3.10/site-packages/cmake/data/share/cmake-4.4/Modules/CMakeLanguageInformation.cmake"
   "/home/alex/.local/lib/python3.10/site-packages/cmake/data/share/cmake-4.4/Modules/CMakeSystemSpecificInformation.cmake"
   "/home/alex/.local/lib/python3.10/site-packages/cmake/data/share/cmake-4.4/Modules/CMakeSystemSpecificInitialize.cmake"
+  "/home/alex/.local/lib/python3.10/site-packages/cmake/data/share/cmake-4.4/Modules/CheckCSourceCompiles.cmake"
   "/home/alex/.local/lib/python3.10/site-packages/cmake/data/share/cmake-4.4/Modules/CheckCXXCompilerFlag.cmake"
   "/home/alex/.local/lib/python3.10/site-packages/cmake/data/share/cmake-4.4/Modules/CheckCXXSourceCompiles.cmake"
+  "/home/alex/.local/lib/python3.10/site-packages/cmake/data/share/cmake-4.4/Modules/CheckIncludeFile.cmake"
+  "/home/alex/.local/lib/python3.10/site-packages/cmake/data/share/cmake-4.4/Modules/CheckLibraryExists.cmake"
   "/home/alex/.local/lib/python3.10/site-packages/cmake/data/share/cmake-4.4/Modules/Compiler/CMakeCommonCompilerMacros.cmake"
   "/home/alex/.local/lib/python3.10/site-packages/cmake/data/share/cmake-4.4/Modules/Compiler/GNU-C.cmake"
   "/home/alex/.local/lib/python3.10/site-packages/cmake/data/share/cmake-4.4/Modules/Compiler/GNU-CXX.cmake"
   "/home/alex/.local/lib/python3.10/site-packages/cmake/data/share/cmake-4.4/Modules/Compiler/GNU.cmake"
   "/home/alex/.local/lib/python3.10/site-packages/cmake/data/share/cmake-4.4/Modules/FindCUDA.cmake"
+  "/home/alex/.local/lib/python3.10/site-packages/cmake/data/share/cmake-4.4/Modules/FindCUDA/run_nvcc.cmake"
   "/home/alex/.local/lib/python3.10/site-packages/cmake/data/share/cmake-4.4/Modules/FindCUDA/select_compute_arch.cmake"
   "/home/alex/.local/lib/python3.10/site-packages/cmake/data/share/cmake-4.4/Modules/FindPackageHandleStandardArgs.cmake"
   "/home/alex/.local/lib/python3.10/site-packages/cmake/data/share/cmake-4.4/Modules/FindPackageMessage.cmake"
   "/home/alex/.local/lib/python3.10/site-packages/cmake/data/share/cmake-4.4/Modules/FindPython.cmake"
   "/home/alex/.local/lib/python3.10/site-packages/cmake/data/share/cmake-4.4/Modules/FindPython/Support.cmake"
+  "/home/alex/.local/lib/python3.10/site-packages/cmake/data/share/cmake-4.4/Modules/FindThreads.cmake"
   "/home/alex/.local/lib/python3.10/site-packages/cmake/data/share/cmake-4.4/Modules/Internal/CMakeCLinkerInformation.cmake"
   "/home/alex/.local/lib/python3.10/site-packages/cmake/data/share/cmake-4.4/Modules/Internal/CMakeCXXLinkerInformation.cmake"
   "/home/alex/.local/lib/python3.10/site-packages/cmake/data/share/cmake-4.4/Modules/Internal/CMakeCommonLinkerInformation.cmake"
@@ -56,6 +61,8 @@ set(CMAKE_MAKEFILE_DEPENDS
   "CMakeFiles/4.4.0/CMakeCCompiler.cmake"
   "CMakeFiles/4.4.0/CMakeCXXCompiler.cmake"
   "CMakeFiles/4.4.0/CMakeSystem.cmake"
+  "CMakeFiles/ndarray_backend_cuda.dir/src/ndarray_backend_cuda_generated_ndarray_backend_cuda.cu.o.cmake.pre-gen"
+  "CMakeFiles/ndarray_backend_cuda.dir/src/ndarray_backend_cuda_generated_ndarray_backend_cuda.cu.o.depend"
   )
 
 # The corresponding makefile is:
@@ -66,10 +73,13 @@ set(CMAKE_MAKEFILE_OUTPUTS
 
 # Byproducts of CMake generate step:
 set(CMAKE_MAKEFILE_PRODUCTS
+  "CMakeFiles/ndarray_backend_cuda.dir/src/ndarray_backend_cuda_generated_ndarray_backend_cuda.cu.o.cmake.pre-gen"
+  "CMakeFiles/ndarray_backend_cuda.dir/src/ndarray_backend_cuda_generated_ndarray_backend_cuda.cu.o.cmake"
   "CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/ndarray_backend_cpu.dir/DependInfo.cmake"
+  "CMakeFiles/ndarray_backend_cuda.dir/DependInfo.cmake"
   )

@@ -316,9 +316,11 @@ inline void AlignedDot(const float* __restrict__ a,
 
   /// BEGIN SOLUTION
   for (int i = 0; i < TILE; i++) {
-    for (int j = 0; j < TILE; j++) {
-      for (int k = 0; k < TILE; k++) {
-        out[i * TILE + j] += a[i * TILE + k] * b[j + k * TILE];
+    for (int k = 0; k < TILE; k++) {
+      float a_val = a[i * TILE + k];
+
+      for (int j = 0; j < TILE; j++) {
+        out[i * TILE + j] += a_val * b[j + k * TILE];
       }
     }
   }
