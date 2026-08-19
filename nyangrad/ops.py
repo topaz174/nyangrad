@@ -1,14 +1,12 @@
-"""Operator implementations."""
+"""Differentiable tensor operations."""
 
-from numbers import Number
-from typing import Optional, List, Tuple, Union
+from typing import Optional
 
 from .autograd import NDArray
 from .autograd import Op, Tensor, Value, TensorOp
 from .autograd import TensorTuple, TensorTupleOp
 from . import init
 from . import array_api
-import numpy
 
 class EWiseAdd(TensorOp):
     def compute(self, a: NDArray, b: NDArray):
@@ -66,7 +64,7 @@ def mul_scalar(a, scalar):
 
 
 class EWisePow(TensorOp):
-    """Op to element-wise raise a tensor to a power."""
+    """Elementwise power with gradients for both operands."""
 
     def compute(self, a: NDArray, b: NDArray) -> NDArray:
         return array_api.power(a, b)
@@ -80,7 +78,7 @@ def power(a, b):
 
 
 class PowerScalar(TensorOp):
-    """Op raise a tensor to an (integer) power."""
+    """Raise every element to a fixed integer power."""
 
     def __init__(self, scalar: int):
         self.scalar = scalar
@@ -98,7 +96,7 @@ def power_scalar(a, scalar):
 
 
 class EWiseDiv(TensorOp):
-    """Op to element-wise divide two nodes."""
+    """Elementwise division."""
 
     def compute(self, a, b):
         return array_api.divide(a, b)
@@ -284,17 +282,6 @@ class Exp(TensorOp):
 def exp(a):
     return Exp()(a)
 
-# class IsPositive(TensorOp):
-#     def compute(self, a):
-#         a[a > 0] = 1
-#         return a
-#     def gradient(self, out_grad, node):
-#         return None
-
-
-# def is_positive(a):
-#     return IsPositive()(a)
-
 
 class ReLU(TensorOp):
     def compute(self, a):
@@ -382,7 +369,7 @@ class TupleGetItem(TensorOp):
 
     def __call__(self, a: TensorTuple, fold_const=True) -> Value:
         assert isinstance(a, TensorTuple)
-        # constant folding
+        # A tuple made immediately before indexing does not need a graph node.
         if fold_const and isinstance(a.op, MakeTensorTuple):
             return a.inputs[self.index]
         return Tensor.make_from_op(self, [a])

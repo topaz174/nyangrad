@@ -1,6 +1,4 @@
-"""Optimization module"""
-import nyangrad as nyan
-import numpy as np
+"""Parameter update rules."""
 
 
 class Optimizer:
@@ -33,10 +31,6 @@ class SGD(Optimizer):
                 self.u[param].data = self.momentum * self.u[param].data + (1 - self.momentum) * grad_decay
 
             param.data -= self.lr * self.u[param].data
-
-    def clip_grad_norm(self, max_norm=0.25):
-        """Clips gradient norm of parameters."""
-        raise NotImplementedError()
 
 
 class Adam(Optimizer):

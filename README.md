@@ -1,126 +1,186 @@
 # nyangrad
 
-nyangrad is a PyTorch-style deep learning framework I wrote from scratch, taking inspiration from the architecture in CMU 10-414/714 (graduate level ML systems course). It has its own
-reverse-mode automatic differentiation engine, a tensor type that records a computation graph as you
-use it, and enough of a neural network library on top (layers, losses, initializers, optimizers, a
-data loader) to actually train models end to end. The MNIST MLP-ResNet in `examples/` trains with it.
+nyangrad is a PyTorch-style deep learning framework I built from scratch. It started with
+[CMU 10-414/714: Deep Learning Systems](https://dlsyscourse.org/) (Graduate level systems course) 
+and the basic shape of Needle, then I kept going: the framework now has its own eager autograd
+engine, neural network library, strided array runtime, native C++ backend, CUDA
+backend, and a benchmark suite for figuring out where all the time actually goes.
 
-## What is in here
+This is still a learning framework, and I like that you can read the whole core
+without digging through a huge codebase. But it is complete enough to train an
+MLP-ResNet on MNIST end to end, including the backward pass and optimizer update,
+on NumPy, the C++ backend, or CUDA.
 
-- `nyangrad/autograd.py` - the core. The `Value`/`Tensor` types, the computation graph, the topological
-  sort, and the reverse-mode autodiff pass (`backward`).
-- `nyangrad/ops.py` - every tensor operation and its gradient. Elementwise add/mul/div/pow (and scalar
-  versions), matmul, reshape, transpose, broadcast, summation, negate, log, exp, relu, and the
-  numerically stable logsumexp / logsoftmax. Also the small tuple ops.
-- `nyangrad/nn.py` - the module system and the layers: Linear, Flatten, ReLU, Sequential, SoftmaxLoss,
-  BatchNorm1d, LayerNorm1d, Dropout, Residual.
-- `nyangrad/init.py` - weight initializers: xavier and kaiming, uniform and normal, plus the basic
-  random/constant/one-hot helpers.
-- `nyangrad/optim.py` - SGD (with momentum and weight decay) and Adam (with bias correction and weight
-  decay).
-- `nyangrad/data.py` - the Dataset / DataLoader abstractions, a couple of image transforms, and the
-  MNIST loader.
-- `nyangrad/backend.py` - a tiny device abstraction. Every tensor op goes through this layer, which is
-  what makes it possible to swap in the C++/CUDA tensor backend I'm currently building (an `NDArray`
-  class backed by hand-written C++ kernels instead of NumPy) without touching the ops or autograd code.
-- `examples/` - training scripts. `mlp_resnet.py` builds and trains the MLP-ResNet on MNIST,
-  `two_layer_net.py` is a plain two layer network written directly against the autograd engine.
-- `tests/` - the correctness tests I used while building this. They check forward values, and check every
-  gradient against a finite-difference numerical gradient.
-- `sandbox/` - earlier warmup work, including a C++/pybind11 version of a training step. Kept around
-  because it is where a lot of the ideas started, but it is not part of the core library.
+![nyangrad architecture](assets/architecture.svg)
 
+## What is implemented
 
-## The autograd engine
+- Dynamic reverse-mode autodiff over a computation DAG, with cached eager
+  execution and gradient accumulation through shared nodes.
+- A Tensor API with elementwise arithmetic, matmul, broadcasting, reshape,
+  transpose, reductions, ReLU, log/exp, log-softmax and log-sum-exp.
+- Modules and training pieces: Linear, Sequential, BatchNorm1d, LayerNorm1d,
+  Dropout, Residual, SoftmaxLoss, SGD, Adam, initializers and parameter discovery.
+- Dataset/DataLoader abstractions, image transforms, IDX parsing, and an MNIST
+  dataset.
+- A float32 NDArray with shape, stride and offset metadata. Reshape, permute,
+  broadcast and slicing are views; kernels compact only when they need to.
+- Three compute paths:
+  - NumPy, which is the portable default and correctness reference.
+  - Native C++ through pybind11, with aligned storage, strided kernels and an
+    8 x 8 tiled CPU matmul.
+  - CUDA through pybind11, with device storage, compaction/reduction kernels and
+    a handwritten tiled GEMM.
+- 285 correctness tests across autograd, layers, optimizers, data loading,
+  striding, native CPU and CUDA. Gradient checks use finite differences, and the
+  device tests compare full training trajectories.
 
-This is the part I care about the most, so here is roughly how it works.
+The split between these pieces is pretty direct. Tensor operations define a
+forward compute and a backward rule. The array API makes NumPy-style broadcasting,
+batched matmul and multi-axis reductions work across both raw NumPy arrays and the
+strided NDArray. NDArray owns only layout metadata and a backend handle; the C++
+and CUDA extensions own the actual storage and kernels. Calling `backward()`
+topologically sorts the graph, walks it in reverse, sums every incoming gradient,
+then builds the input gradients out of ordinary Tensor ops.
 
-Every tensor is a node in a graph. A node either is a leaf (it was created directly from data) or it was
-produced by an operation applied to other nodes. Each node holds a reference to the op that made it and
-the input nodes that went into it, so the graph is built implicitly just by doing math on tensors.
+## Benchmarks
 
-- An `Op` is an object with two methods: `compute`, which does the actual forward NumPy computation on
-  raw arrays, and `gradient`, which, given the gradient flowing in from the output side, returns the
-  gradient with respect to each input. Splitting it this way means the forward and backward for each
-  operation live right next to each other and you can read them together.
-- When you call something like `a + b`, a new tensor is made from an `EWiseAdd` op with `a` and `b` as
-  inputs. The forward result is computed and cached. Nothing about the graph is thrown away, so it is
-  available later for the backward pass.
-- `backward()` starts from the output, does a post-order depth-first traversal to get a topological
-  ordering of the graph, and then walks it in reverse. For each node it sums the gradient contributions
-  coming from everywhere it was used, then pushes gradients back to that node's inputs using the op's
-  `gradient` method. This is the standard reverse-mode accumulation, written out plainly.
+I wanted the benchmarks to explain the framework, not just give it one flattering
+number. The suite covers GEMM scaling, strided compaction and memory bandwidth,
+allocation cost, tiny-op dispatch overhead, full MLP forward/backward passes, and
+the number of real allocations and kernel launches in one training step.
 
-A few things that were more subtle than I expected:
+These are the committed results from an RTX 3060 and Ryzen 5 5600X. PyTorch 2.7
+and NumPy/OpenBLAS are the library baselines; TF32 is disabled so the CUDA rows
+all do fp32 arithmetic.
 
-- Broadcasting. NumPy will happily broadcast a `(4,)` bias across a `(32, 4)` batch in the forward pass,
-  but in the backward pass that means the gradient has to be summed back down to the original shape. The
-  gradients for broadcast, summation, and matmul all have to carefully undo whatever broadcasting NumPy
-  did, which is where most of the fiddly reshaping in `ops.py` comes from.
-- Matmul with batched / mismatched ranks. The gradient has to handle the case where the two operands
-  have different numbers of dimensions and sum over the leading batch axes that only one side had.
-- Numerical stability. A naive softmax or logsumexp overflows the moment the logits get large, so those
-  are done with the standard max-subtraction trick. There is a test that throws values like 1e10 at it
-  to make sure it does not blow up.
-- Keeping the graph light. Optimizers use detached tensors / `.data` when updating parameters so that the
-  update step does not itself get recorded into the graph and leak memory. There is a test that counts
-  live tensors to catch this.
+| Measurement | nyangrad | Reference | What I take from it |
+| --- | ---: | ---: | --- |
+| CUDA GEMM, 4096 x 4096 | 3,271 GFLOP/s | cuBLAS 7,219 GFLOP/s | 46% of the measured GPU ceiling, 2.2x behind cuBLAS |
+| CUDA streaming kernel, output reused | 298.5 GB/s | measured ceiling 297 GB/s | the simple elementwise kernel reaches the bandwidth roof |
+| Large MLP, forward + backward | CUDA 65.0 ms | NumPy 168.6 ms; PyTorch CUDA 4.77 ms | useful acceleration, with a large framework/allocator gap left |
+| Tiled CPU GEMM, 4096 x 4096 | 7.9 GFLOP/s | PyTorch 1 thread 122.5 GFLOP/s | the CPU kernel is correct and tiled, but nowhere near a tuned BLAS |
+| CUDA add, one element | 67.4 us | PyTorch CUDA 12.0 us | allocation/free and synchronization dominate tiny eager ops |
 
+Every timed backend is checked against a NumPy reference first. The harness warms
+up, batches short operations, synchronizes CUDA at sample boundaries, reports the
+median plus p10/p90 and IQR, flushes caches where it matters, records clocks and
+temperature, and measures the machine ceilings instead of copying theoretical
+specs. That last part mattered more than I expected.
 
-## The nn layer
+<p align="center">
+  <img src="assets/gemm_scaling.png" width="49%" alt="GEMM throughput as matrix size increases">
+  <img src="assets/gemm_roofline.png" width="49%" alt="GEMM throughput against the measured roofline">
+</p>
 
-The module system is deliberately simple. A `Module` finds its parameters and child modules by looking
-through its own `__dict__`, recursing into lists, tuples, and dicts. So you just assign layers and
-parameters as attributes and `.parameters()` finds them. `train()` / `eval()` flip a flag that layers
-like Dropout and BatchNorm read.
+<p align="center">
+  <img src="assets/model_latency.png" width="49%" alt="End-to-end MLP latency by backend">
+  <img src="assets/memory_bandwidth.png" width="49%" alt="Effective bandwidth for strided compaction cases">
+</p>
 
-On top of that the usual pieces are implemented from their definitions: Linear with kaiming init,
-BatchNorm1d with running statistics, LayerNorm1d, Dropout with inverted scaling, a Residual wrapper, and
-a SoftmaxLoss that uses the stable logsoftmax. `examples/mlp_resnet.py` wires these into a residual MLP.
+![Per-operation framework and backend overhead](assets/overhead.png)
 
+The plots are only the summary. [RESULTS.md](benchmarks/RESULTS.md) has all 165
+measurements and [CASE_STUDY.md](benchmarks/CASE_STUDY.md) goes through the
+methodology, mistakes I found while building it, and what the profiles say to
+work on next. The big one is memory management: allocating straight from CUDA
+for each op and freeing an output while its kernel is still in flight serializes
+work that PyTorch keeps asynchronous with a caching allocator. Kernel fusion and
+a better CPU GEMM are the other obvious next steps.
 
-## Usage
-
-Install it in editable mode so the package is importable:
+Run a quick smoke benchmark with:
 
 ```bash
-pip install -r requirements.txt
-pip install -e .
+python3 benchmarks/run_all.py --quick
 ```
 
-A quick taste of the autograd:
+A full run takes several minutes on the benchmark machine:
+
+```bash
+python3 benchmarks/run_all.py
+python3 benchmarks/report.py
+python3 benchmarks/plot_results.py
+```
+
+## Install and build
+
+Python 3.10 or newer is required. The NumPy backend works without compiling
+anything:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install -e ".[dev]"
+```
+
+Build the native backend with CMake through the Makefile:
+
+```bash
+make
+```
+
+That always builds the C++ extension. If `nvcc` is on `PATH`, CMake also builds
+the CUDA extension for the local GPU architecture. The extensions are written
+into `nyangrad/`, so an editable install sees them immediately.
+
+The default device is NumPy. A device can be passed to tensors and modules
+directly, or selected once:
+
+```python
+import numpy as np
+import nyangrad as nyan
+
+device = nyan.cuda()
+if not device.enabled():
+    device = nyan.cpu() if nyan.cpu().enabled() else nyan.numpy_device()
+nyan.set_default_device(device)
+
+x = nyan.Tensor(np.random.randn(3, 4).astype("float32"))
+w = nyan.Tensor(np.random.randn(4, 2).astype("float32"))
+
+loss = nyan.relu(x @ w).sum()
+loss.backward()
+
+print(loss.numpy())
+print(x.grad.shape, w.grad.shape)
+```
+
+Train the residual MLP on the bundled MNIST files:
+
+```bash
+python3 examples/mlp_resnet.py
+```
+
+Or choose an accelerated device explicitly:
 
 ```python
 import nyangrad as nyan
-import numpy as np
+from examples.mlp_resnet import train_mnist
 
-x = nyan.Tensor(np.random.randn(3, 4))
-w = nyan.Tensor(np.random.randn(4, 2))
-
-y = nyan.relu(x @ w).sum()
-y.backward()
-
-print(x.grad.shape)  # (3, 4)
-print(w.grad.shape)  # (4, 2)
+train_mnist(device=nyan.cuda())
 ```
-
-Training the MLP-ResNet on MNIST:
-
-```bash
-python examples/mlp_resnet.py
-```
-
 
 ## Tests
 
-The tests are the thing I trust. Run them with:
+From the repository root:
 
 ```bash
-pytest tests/
+pytest
 ```
 
-Most of them work the same way: build a small function out of the ops, compute the analytic gradient
-through the engine, compute a finite-difference numerical gradient, and assert they match. The nn and
-optimizer tests go further and check exact forward and backward values, running statistics, training and
-eval mode behavior, and that a few small models actually train down in loss. Division is done in float32,
-so its numerical gradient check runs at a float32-appropriate tolerance.
+The suite checks analytical gradients against numerical ones, exact layer and
+optimizer behavior, train/eval state, view aliasing and compaction, CPU/CUDA
+agreement, graph lifetime, and small models that actually train down in loss.
+The benchmark suite has separate preflight checks before it records performance.
+
+## Repo map
+
+- `nyangrad/autograd.py` - Tensor, graph construction and reverse-mode traversal.
+- `nyangrad/ops.py` - differentiable operations and their gradient rules.
+- `nyangrad/array_api.py` - common array semantics across NumPy and NDArray.
+- `nyangrad/ndarray.py` - strided views, device handles and kernel dispatch.
+- `nyangrad/nn.py`, `init.py`, `optim.py`, `data.py` - training library.
+- `csrc/` - the C++ and CUDA kernels exposed through pybind11.
+- `examples/` - a direct two-layer Tensor example and the MNIST MLP-ResNet.
+- `benchmarks/` - harness, suites, raw JSON, generated report and case study.
+- `tests/` - framework and backend correctness tests.

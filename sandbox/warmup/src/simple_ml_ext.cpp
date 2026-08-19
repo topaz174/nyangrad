@@ -97,11 +97,7 @@ void softmax_regression_epoch_cpp(const float *X, const unsigned char *y,
 }
 
 
-/**
- * This is the pybind11 code that wraps the function above.  It's only role is
- * wrap the function above in a Python module, and you do not need to make any
- * edits to the code
- */
+/** Expose the training kernel as a small pybind11 module. */
 PYBIND11_MODULE(simple_ml_ext, m) {
     m.def("softmax_regression_epoch_cpp",
     	[](py::array_t<float, py::array::c_style> X,

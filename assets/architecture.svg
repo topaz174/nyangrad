@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="820" viewBox="0 0 1200 820" role="img" aria-labelledby="title desc">
+  <title id="title">nyangrad framework architecture</title>
+  <desc id="desc">A training batch flows through data loading, neural network modules, tensor operations, reverse-mode autograd, array dispatch, and one of the NumPy, native CPU, or CUDA backends. Gradients return through the graph and optimizers update detached parameter data.</desc>
+  <defs>
+    <style>
+      :root { color-scheme: light dark; }
+      .bg { fill: #f8fafc; }
+      .panel { fill: #ffffff; stroke: #94a3b8; stroke-width: 1.5; }
+      .panel-blue { fill: #eff6ff; stroke: #60a5fa; stroke-width: 1.5; }
+      .panel-violet { fill: #f5f3ff; stroke: #8b5cf6; stroke-width: 1.5; }
+      .panel-green { fill: #ecfdf5; stroke: #34d399; stroke-width: 1.5; }
+      .panel-amber { fill: #fffbeb; stroke: #f59e0b; stroke-width: 1.5; }
+      .panel-cyan { fill: #ecfeff; stroke: #22d3ee; stroke-width: 1.5; }
+      .title { fill: #0f172a; font: 700 28px ui-sans-serif, system-ui, sans-serif; }
+      .heading { fill: #0f172a; font: 700 17px ui-sans-serif, system-ui, sans-serif; }
+      .body { fill: #334155; font: 14px ui-sans-serif, system-ui, sans-serif; }
+      .small { fill: #475569; font: 12.5px ui-monospace, SFMono-Regular, Consolas, monospace; }
+      .label { fill: #475569; font: 600 12px ui-sans-serif, system-ui, sans-serif; letter-spacing: .04em; }
+      .forward { fill: none; stroke: #2563eb; stroke-width: 2.2; marker-end: url(#arrow-forward); }
+      .backward { fill: none; stroke: #e11d48; stroke-width: 2.2; stroke-dasharray: 7 5; marker-end: url(#arrow-backward); }
+      .control { fill: none; stroke: #64748b; stroke-width: 1.6; marker-end: url(#arrow-control); }
+      @media (prefers-color-scheme: dark) {
+        .bg { fill: #0b1120; }
+        .panel { fill: #111827; stroke: #475569; }
+        .panel-blue { fill: #10213e; stroke: #3b82f6; }
+        .panel-violet { fill: #21183b; stroke: #8b5cf6; }
+        .panel-green { fill: #0c2921; stroke: #10b981; }
+        .panel-amber { fill: #2c2110; stroke: #f59e0b; }
+        .panel-cyan { fill: #0b2730; stroke: #06b6d4; }
+        .title, .heading { fill: #f8fafc; }
+        .body { fill: #cbd5e1; }
+        .small, .label { fill: #94a3b8; }
+      }
+    </style>
+    <marker id="arrow-forward" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2563eb"/>
+    </marker>
+    <marker id="arrow-backward" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#e11d48"/>
+    </marker>
+    <marker id="arrow-control" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" width="1200" height="820" rx="20"/>
+  <text class="title" x="40" y="46">nyangrad: one training step</text>
+  <line class="forward" x1="868" y1="39" x2="918" y2="39"/>
+  <text class="label" x="930" y="43">FORWARD / DISPATCH</text>
+  <line class="backward" x1="1038" y1="39" x2="1088" y2="39"/>
+  <text class="label" x="1100" y="43">GRADIENT</text>
+
+  <rect class="panel-green" x="40" y="86" width="250" height="152" rx="14"/>
+  <text class="heading" x="62" y="116">Data pipeline</text>
+  <text class="small" x="62" y="143">Dataset / MNISTDataset</text>
+  <text class="small" x="62" y="166">transforms → DataLoader</text>
+  <text class="body" x="62" y="198">NumPy samples become batched</text>
+  <text class="body" x="62" y="219">Tensors, optionally shuffled.</text>
+
+  <rect class="panel-blue" x="335" y="86" width="530" height="152" rx="14"/>
+  <text class="heading" x="357" y="116">Python framework API</text>
+  <rect class="panel" x="357" y="134" width="145" height="75" rx="9"/>
+  <text class="small" x="375" y="161">Tensor + ops</text>
+  <text class="body" x="375" y="185">dynamic graph nodes</text>
+  <rect class="panel" x="520" y="134" width="150" height="75" rx="9"/>
+  <text class="small" x="538" y="161">nn.Module</text>
+  <text class="body" x="538" y="185">layers + parameters</text>
+  <rect class="panel" x="688" y="134" width="155" height="75" rx="9"/>
+  <text class="small" x="706" y="161">Optimizer</text>
+  <text class="body" x="706" y="185">SGD / Adam</text>
+
+  <rect class="panel-amber" x="910" y="86" width="250" height="152" rx="14"/>
+  <text class="heading" x="932" y="116">Model output</text>
+  <text class="small" x="932" y="143">logits → SoftmaxLoss</text>
+  <text class="body" x="932" y="177">loss.backward() seeds the</text>
+  <text class="body" x="932" y="198">output with ones and starts</text>
+  <text class="body" x="932" y="219">reverse accumulation.</text>
+
+  <path class="forward" d="M 290 162 H 329"/>
+  <path class="forward" d="M 865 162 H 904"/>
+
+  <rect class="panel-violet" x="260" y="286" width="680" height="174" rx="16"/>
+  <text class="heading" x="284" y="320">Autograd engine</text>
+  <rect class="panel" x="284" y="340" width="188" height="88" rx="10"/>
+  <text class="small" x="302" y="366">Op.compute(...)</text>
+  <text class="body" x="302" y="390">realize and cache the</text>
+  <text class="body" x="302" y="411">forward array result</text>
+  <rect class="panel" x="506" y="340" width="188" height="88" rx="10"/>
+  <text class="small" x="524" y="366">topological DFS</text>
+  <text class="body" x="524" y="390">walk graph once in</text>
+  <text class="body" x="524" y="411">reverse dependency order</text>
+  <rect class="panel" x="728" y="340" width="188" height="88" rx="10"/>
+  <text class="small" x="746" y="366">Op.gradient(...)</text>
+  <text class="body" x="746" y="390">sum contributions and</text>
+  <text class="body" x="746" y="411">build differentiable grads</text>
+
+  <path class="forward" d="M 600 238 V 280"/>
+  <path class="backward" d="M 1035 238 V 266 H 822 V 334"/>
+  <path class="backward" d="M 728 384 H 700"/>
+  <path class="backward" d="M 506 384 H 478"/>
+  <path class="backward" d="M 765 334 V 252 H 765 V 215"/>
+  <text class="label" x="780" y="268">PARAMETER GRADS</text>
+  <path class="control" d="M 765 209 V 232 H 600 V 280"/>
+  <text class="label" x="614" y="254">DETACHED .DATA UPDATE</text>
+
+  <rect class="panel-cyan" x="260" y="510" width="680" height="108" rx="14"/>
+  <text class="heading" x="284" y="542">Array dispatch</text>
+  <text class="small" x="284" y="570">array_api.py</text>
+  <text class="body" x="410" y="570">broadcast alignment · batched matmul · repeated-axis reductions</text>
+  <text class="small" x="284" y="596">NDArray metadata</text>
+  <text class="body" x="430" y="596">shape + strides + offset; reshape, permute, broadcast and slice are views</text>
+  <path class="forward" d="M 378 460 V 504"/>
+  <path class="backward" d="M 822 504 V 460"/>
+
+  <rect class="panel" x="40" y="676" width="340" height="108" rx="14"/>
+  <text class="heading" x="62" y="706">NumPy reference</text>
+  <text class="small" x="62" y="733">numpy.ndarray · broad dtype support</text>
+  <text class="body" x="62" y="760">Portable default and numerical oracle.</text>
+
+  <rect class="panel" x="430" y="676" width="340" height="108" rx="14"/>
+  <text class="heading" x="452" y="706">Native CPU</text>
+  <text class="small" x="452" y="733">C++17 + pybind11 · aligned float32 buffers</text>
+  <text class="body" x="452" y="760">Strided kernels and 8×8 tiled GEMM.</text>
+
+  <rect class="panel" x="820" y="676" width="340" height="108" rx="14"/>
+  <text class="heading" x="842" y="706">CUDA</text>
+  <text class="small" x="842" y="733">CUDA C++ + pybind11 · device buffers</text>
+  <text class="body" x="842" y="760">Compaction, reductions and tiled GEMM.</text>
+
+  <path class="forward" d="M 430 618 V 642 H 210 V 670"/>
+  <path class="forward" d="M 600 618 V 670"/>
+  <path class="forward" d="M 770 618 V 642 H 990 V 670"/>
+</svg>

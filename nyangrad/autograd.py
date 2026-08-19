@@ -1,4 +1,11 @@
-"""Core data structures: the computational graph and reverse-mode autodiff engine."""
+"""Dynamic computation graphs and reverse-mode automatic differentiation."""
+
+from functools import reduce
+from operator import add
+from typing import Dict, List, Optional, Tuple, Union
+
+import numpy
+
 import nyangrad
 from .backend import (
     Device,
@@ -11,9 +18,6 @@ from .backend import (
     set_default_device,
 )
 from .ndarray import NDArray as _StridedArray
-from typing import Any, List, Optional, NamedTuple, Tuple, Union, Dict
-from collections import namedtuple
-import numpy
 
 from nyangrad import init
 
@@ -22,12 +26,12 @@ TENSOR_COUNTER = 0
 
 import numpy as array_api
 
-# the raw array types an op's compute() can be handed
+# Ops work on either NumPy arrays or nyangrad's strided arrays.
 NDArray = Union[numpy.ndarray, _StridedArray]
 
 
 class Op:
-    """Operator definition."""
+    """The forward and backward definition of one graph operation."""
 
     def __call__(self, *args):
         raise NotImplementedError()
@@ -45,7 +49,7 @@ class Op:
         raise NotImplementedError()
 
     def gradient_as_tuple(self, out_grad: "Value", node: "Value") -> Tuple["Value"]:
-        """Convenience method to always return a tuple from gradient call"""
+        """Normalize single- and multi-input gradients to a tuple."""
         output = self.gradient(out_grad, node)
         if isinstance(output, tuple):
             return output
@@ -56,14 +60,14 @@ class Op:
 
 
 class TensorOp(Op):
-    """Op class specialized to output tensors, will be alternate subclasses for other structures"""
+    """An operation with a single Tensor output."""
 
     def __call__(self, *args):
         return Tensor.make_from_op(self, args)
 
 
 class TensorTupleOp(Op):
-    """Op class specialized to output TensorTuple"""
+    """An operation with a TensorTuple output."""
 
     def __call__(self, *args):
         return TensorTuple.make_from_op(self, args)
@@ -72,20 +76,15 @@ class TensorTupleOp(Op):
 class Value:
     """A value in the computational graph."""
 
-    # trace of computational graph
     op: Optional[Op]
     inputs: List["Value"]
-    # The following fields are cached fields for
-    # dynamic computation
     cached_data: NDArray
     requires_grad: bool
 
     def realize_cached_data(self):
-        """Run compute to realize the cached data"""
-        # avoid recomputation
+        """Compute this value once, then reuse the cached result."""
         if self.cached_data is not None:
             return self.cached_data
-        # note: data implicitly calls realized cached data
         self.cached_data = self.op.compute(
             *[x.realize_cached_data() for x in self.inputs]
         )
@@ -141,10 +140,7 @@ class Value:
 
 
 class TensorTuple(Value):
-    """Represent a tuple of tensors.
-
-    To keep things simple, we do not support nested tuples.
-    """
+    """A graph value containing a flat tuple of tensors."""
 
     def __len__(self):
         cdata = self.realize_cached_data()
@@ -351,45 +347,22 @@ class Tensor(Value):
 
 
 def compute_gradient_of_variables(output_tensor, out_grad):
-    """Take gradient of output node with respect to each node in node_list.
-
-    Store the computed result in the grad field of each Variable.
-    """
-    # a map from node to a list of gradient contributions from each output node
-    node_to_output_grads_list: Dict[Tensor, List[Tensor]] = {}
-    # Special note on initializing gradient of
-    # We are really taking a derivative of the scalar reduce_sum(output_node)
-    # instead of the vector output_node. But this is the common case for loss function.
-    node_to_output_grads_list[output_tensor] = [out_grad]
-
-    # Traverse graph in reverse topological order given the output_node that we are taking gradient wrt.
-    reverse_topo_order = list(reversed(find_topo_sort([output_tensor])))
-
-    # loop through list backwards
+    """Accumulate reverse-mode gradients from the output tensor into the graph."""
+    node_to_output_grads_list: Dict[Tensor, List[Tensor]] = {
+        output_tensor: [out_grad]
+    }
+    reverse_topo_order = reversed(find_topo_sort([output_tensor]))
 
     for node in reverse_topo_order:
         node.grad = sum_node_list(node_to_output_grads_list[node])
-        
-        for i in range(len(node.inputs)):
-            input = node.inputs[i]
+        input_grads = node.op.gradient_as_tuple(node.grad, node) if node.op else ()
+        for input_node, input_grad in zip(node.inputs, input_grads):
+            node_to_output_grads_list.setdefault(input_node, []).append(input_grad)
 
-            if input not in node_to_output_grads_list:
-                node_to_output_grads_list[input] = []
-
-            node_to_output_grads_list[input].append(node.op.gradient_as_tuple(node.grad, node)[i])
-    
-
-    
 
 
 def find_topo_sort(node_list: List[Value]) -> List[Value]:
-    """Given a list of nodes, return a topological sort list of nodes ending in them.
-
-    A simple algorithm is to do a post-order DFS traversal on the given nodes,
-    going backwards based on input edges. Since a node is added to the ordering
-    after all its predecessors are traversed due to post-order DFS, we get a topological
-    sort.
-    """
+    """Return the graph nodes in input-to-output topological order."""
     visited = set()
     topo_order = []
     for node in node_list:
@@ -399,24 +372,15 @@ def find_topo_sort(node_list: List[Value]) -> List[Value]:
 
 
 def topo_sort_dfs(node, visited, topo_order):
-    """Post-order DFS"""
-    for input in node.inputs:
-        if input not in visited:
-            topo_sort_dfs(input, visited, topo_order)
-
+    """Append one graph branch using a post-order depth-first traversal."""
+    for input_node in node.inputs:
+        if input_node not in visited:
+            topo_sort_dfs(input_node, visited, topo_order)
 
     topo_order.append(node)
     visited.add(node)
 
 
-##############################
-####### Helper Methods #######
-##############################
-
-
 def sum_node_list(node_list):
-    """Custom sum function in order to avoid create redundant nodes in Python sum implementation."""
-    from operator import add
-    from functools import reduce
-
+    """Add gradient contributions without Python's leading zero."""
     return reduce(add, node_list)

@@ -172,7 +172,7 @@ def test_setitem_ewise(params, device):
     A[lhs_slices] = B[rhs_slices]
     _A[lhs_slices] = _B[rhs_slices]
     end_ptr = A._handle.ptr()
-    assert start_ptr == end_ptr, "you should modify in-place"
+    assert start_ptr == end_ptr, "operation must update storage in place"
     compare_strides(_A, A)
     np.testing.assert_allclose(A.numpy(), _A, atol=1e-5, rtol=1e-5)
 
@@ -198,7 +198,7 @@ def test_setitem_scalar(params, device):
     _A[slices] = 4.0
     A[slices] = 4.0
     end_ptr = A._handle.ptr()
-    assert start_ptr == end_ptr, "you should modify in-place"
+    assert start_ptr == end_ptr, "operation must update storage in place"
     np.testing.assert_allclose(A.numpy(), _A, atol=1e-5, rtol=1e-5)
     compare_strides(_A, A)
 
@@ -441,8 +441,3 @@ def test_ewise_tanh(device):
     A = np.random.randn(5, 5)
     B = nd.array(A, device=device)
     np.testing.assert_allclose(np.tanh(A), (B.tanh()).numpy(), atol=1e-5, rtol=1e-5)
-
-
-######################    |    ######################
-###################### MUGRADE ######################
-######################    v    ######################

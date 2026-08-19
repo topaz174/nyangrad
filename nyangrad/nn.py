@@ -1,13 +1,14 @@
-"""Neural network layers built on top of the autograd engine."""
+"""Neural network modules built from differentiable tensor operations."""
+
 from typing import Any
-from nyangrad.autograd import Tensor
-from nyangrad import ops
+
 import nyangrad.init as init
-import numpy as np
+from nyangrad import ops
+from nyangrad.autograd import Tensor
 
 
 class Parameter(Tensor):
-    """A special kind of tensor that represents parameters."""
+    """A trainable Tensor discovered by Module.parameters()."""
 
 
 def _unpack_params(value: object) -> list[Tensor]:
@@ -17,8 +18,8 @@ def _unpack_params(value: object) -> list[Tensor]:
         return value.parameters()
     elif isinstance(value, dict):
         params = []
-        for k, v in value.items():
-            params += _unpack_params(v)
+        for item in value.values():
+            params += _unpack_params(item)
         return params
     elif isinstance(value, (list, tuple)):
         params = []
@@ -36,8 +37,8 @@ def _child_modules(value: object) -> list["Module"]:
         return modules
     if isinstance(value, dict):
         modules = []
-        for k, v in value.items():
-            modules += _child_modules(v)
+        for item in value.values():
+            modules += _child_modules(item)
         return modules
     elif isinstance(value, (list, tuple)):
         modules = []
@@ -84,12 +85,24 @@ class Linear(Module):
         self.in_features = in_features
         self.out_features = out_features
 
-        self.weight = Parameter(init.kaiming_uniform(in_features, out_features, device=device, dtype=dtype))
-        self.bias = Parameter(init.kaiming_uniform(out_features, 1, device=device, dtype=dtype).reshape((1, out_features)))
+        self.weight = Parameter(
+            init.kaiming_uniform(in_features, out_features, device=device, dtype=dtype)
+        )
+        self.bias = (
+            Parameter(
+                init.kaiming_uniform(
+                    out_features, 1, device=device, dtype=dtype
+                ).reshape((1, out_features))
+            )
+            if bias
+            else None
+        )
 
     def forward(self, X: Tensor) -> Tensor:
-        XW = X.matmul(self.weight)
-        return XW + self.bias.broadcast_to(XW.shape)
+        output = X.matmul(self.weight)
+        if self.bias is not None:
+            output = output + self.bias.broadcast_to(output.shape)
+        return output
 
 
 class Flatten(Module):

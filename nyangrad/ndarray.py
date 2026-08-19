@@ -13,11 +13,11 @@ def prod(x: Iterable[int]) -> int:
 
 
 class Device:
-    """Base class for anything a tensor's data can live on."""
+    """Base class for tensor storage and computation targets."""
 
 
 class BackendDevice(Device):
-    """A device, i.e. a thin wrapper around one of the kernel modules."""
+    """Thin Python wrapper around a native or reference kernel module."""
 
     def __init__(self, name: str, mod: Any) -> None:
         self.name: str = name
@@ -43,13 +43,9 @@ class BackendDevice(Device):
         return self.mod is not None
 
     def randn(self, *shape: int, dtype: str = "float32") -> "NDArray":
-        # note: numpy doesn't support types within standard random routines, and
-        # .astype("float32") does work if we're generating a singleton
         return NDArray(np.random.randn(*shape).astype(dtype), device=self)
 
     def rand(self, *shape: int, dtype: str = "float32") -> "NDArray":
-        # note: numpy doesn't support types within standard random routines, and
-        # .astype("float32") does work if we're generating a singleton
         return NDArray(np.random.rand(*shape).astype(dtype), device=self)
 
     def one_hot(self, n: int, i: int, dtype: str = "float32") -> "NDArray":
@@ -74,7 +70,7 @@ class BackendDevice(Device):
 
 
 def cuda() -> BackendDevice:
-    """Return cuda device"""
+    """Return the CUDA device, disabled when its extension is not built."""
     try:
         from . import _cuda_backend  # type: ignore[attr-defined]
 
@@ -84,7 +80,7 @@ def cuda() -> BackendDevice:
 
 
 def cpu() -> BackendDevice:
-    """Return cpu device, i.e. the native C++ backend"""
+    """Return the native C++ CPU device."""
     try:
         from . import _cpu_backend  # type: ignore[attr-defined]
 
@@ -103,7 +99,7 @@ def default_device() -> BackendDevice:
 
 
 def all_backend_devices() -> list[BackendDevice]:
-    """return a list of all devices backed by an NDArray"""
+    """Return the native and reference devices backed by NDArray."""
     return [cpu(), cuda(), cpu_numpy()]
 
 
@@ -122,20 +118,20 @@ class NDArray:
     _handle: Any
 
     def __init__(self, other, device=None):
-        """Create by copying another NDArray, or from numpy"""
+        """Copy an existing NDArray or import data from NumPy."""
         if isinstance(other, NDArray):
-            # create a copy of existing NDArray
+
             if device is None:
                 device = other.device
-            self._init(other.to(device) + 0.0)  # this creates a copy
+            self._init(other.to(device) + 0.0)
         elif isinstance(other, np.ndarray):
-            # create copy from numpy array
+
             device = device if device is not None else default_device()
             array = self.make(other.shape, device=device)
             array.device.from_numpy(np.ascontiguousarray(other), array._handle)
             self._init(array)
         else:
-            # see if we can create a numpy array from input
+
             array = NDArray(np.array(other), device=device)
             self._init(array)
 
@@ -148,7 +144,7 @@ class NDArray:
 
     @staticmethod
     def compact_strides(shape: tuple[int, ...]) -> tuple[int, ...]:
-        """Utility function to compute compact strides"""
+        """Compute row-major strides for shape."""
         stride = 1
         res = []
         for i in range(1, len(shape) + 1):
@@ -164,9 +160,7 @@ class NDArray:
         handle: Any = None,
         offset: int = 0,
     ) -> "NDArray":
-        """Create a new NDArray with the given properties.  This will allocation the
-        memory if handle=None, otherwise it will use the handle of an existing
-        array."""
+        """Create a view, allocating storage only when no handle is supplied."""
         array = NDArray.__new__(NDArray)
         array._shape = tuple(shape)
         array._strides = NDArray.compact_strides(shape) if strides is None else strides
@@ -178,7 +172,7 @@ class NDArray:
             array._handle = handle
         return array
 
-    ### Properies and string representations
+    # Properties and representations
     @property
     def shape(self) -> tuple[int, ...]:
         return self._shape
@@ -193,7 +187,7 @@ class NDArray:
 
     @property
     def dtype(self) -> str:
-        # only support float32 for now
+
         return "float32"
 
     @property
@@ -211,34 +205,33 @@ class NDArray:
     def __str__(self) -> str:
         return self.numpy().__str__()
 
-    ### Basic array manipulation
+    # Views and data movement
     def fill(self, value: float) -> None:
         """Fill (in place) with a constant value."""
         self._device.fill(self._handle, value)
 
     def to(self, device: BackendDevice) -> "NDArray":
-        """Convert between devices, using to/from numpy calls as the unifying bridge."""
+        """Copy to another device through NumPy as the interchange format."""
         if device == self.device:
             return self
         else:
             return NDArray(self.numpy(), device=device)
 
     def numpy(self) -> np.ndarray:
-        """convert to a numpy array"""
+        """Copy this view into a NumPy array."""
         return self.device.to_numpy(
             self._handle, self.shape, self.strides, self._offset
         )
 
     def is_compact(self) -> bool:
-        """Return true if array is compact in memory and internal size equals product
-        of the shape dimensions"""
+        """Whether this view covers one compact, row-major buffer."""
         return (
             self._strides == self.compact_strides(self._shape)
             and prod(self.shape) == self._handle.size
         )
 
     def compact(self) -> "NDArray":
-        """Convert a matrix to be compact"""
+        """Return compact storage, copying only for a strided view."""
         if self.is_compact():
             return self
         else:
@@ -312,7 +305,7 @@ class NDArray:
             offset=self._offset
         )
 
-    ### Get and set elements
+    # Indexing
 
     def process_slice(self, sl: slice, dim: int) -> slice:
         """Convert a slice to an explicit start/stop/step"""
@@ -328,7 +321,7 @@ class NDArray:
         if step is None:
             step = 1
 
-        # we're not gonna handle negative strides and that kind of thing
+        # Negative strides are outside the current backend contract.
         assert stop > start, "Start must be less than stop"
         assert step > 0, "No support for  negative increments"
         return slice(start, stop, step)
@@ -340,7 +333,7 @@ class NDArray:
         the same number of dimensions and shares memory with self.
         """
 
-        # handle singleton as tuple, everything as slices
+
         if not isinstance(idxs, tuple):
             idxs = (idxs,)
         slices = tuple(
@@ -393,7 +386,7 @@ class NDArray:
                 view._offset,
             )
 
-    ### Collection of elementwise and scalar function: add, multiply, boolean, etc
+    # Elementwise arithmetic
 
     def ewise_or_scalar(
         self,
@@ -450,7 +443,7 @@ class NDArray:
             other, self.device.ewise_maximum, self.device.scalar_maximum
         )
 
-    ### Binary operators all return (0.0, 1.0) floating point values, could of course be optimized
+    # Comparisons use float32 masks because it is the only backend dtype.
     def __eq__(self, other: Any) -> "NDArray":  # type: ignore[override]
         return self.ewise_or_scalar(other, self.device.ewise_eq, self.device.scalar_eq)
 
@@ -469,7 +462,7 @@ class NDArray:
     def __le__(self, other: Any) -> "NDArray":
         return 1 - (self > other)
 
-    ### Elementwise functions
+    # Unary functions
 
     def log(self) -> "NDArray":
         out = NDArray.make(self.shape, device=self.device)
@@ -486,7 +479,7 @@ class NDArray:
         self.device.ewise_tanh(self.compact()._handle, out._handle)
         return out
 
-    ### Matrix multiplication
+    # Matrix multiplication
     def __matmul__(self, other: "NDArray") -> "NDArray":
         """Multiply two 2D arrays.
 
@@ -501,7 +494,7 @@ class NDArray:
 
         m, n, p = self.shape[0], self.shape[1], other.shape[1]
 
-        # if the matrix is aligned, use tiled matrix multiplication
+
         if hasattr(self.device, "matmul_tiled") and all(
             d % self.device.__tile_size__ == 0 for d in (m, n, p)
         ):
@@ -531,15 +524,15 @@ class NDArray:
             )
             return out
 
-    ### Reductions, i.e., sum/max over all element or over given axis
+    # Reductions
     def reduce_view_out(self, axis: int | tuple[int, ...] | list[int] | None, keepdims: bool = False) -> tuple["NDArray", "NDArray"]:
-        """ Return a view to the array set up for reduction functions and output array. """
+        """Move the reduction axis last and allocate its output."""
         if isinstance(axis, tuple) and not axis:
             raise ValueError("Empty axis in reduce")
 
         if axis is None:
             view = self.compact().reshape((1,) * (self.ndim - 1) + (prod(self.shape),))
-            #out = NDArray.make((1,) * self.ndim, device=self.device)
+
             out = NDArray.make((1,), device=self.device)
 
         else:
@@ -570,7 +563,7 @@ class NDArray:
 
 
 def array(a: Any, dtype: str = "float32", device: BackendDevice | None = None) -> NDArray:
-    """Convenience methods to match numpy a bit more closely."""
+    """Create an NDArray on device."""
     dtype = "float32" if dtype is None else dtype
     assert dtype == "float32"
     return NDArray(a, device=device)

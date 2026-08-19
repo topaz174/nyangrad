@@ -15,8 +15,8 @@ from .ndarray import (
 class NumpyDevice(Device):
     """Holds plain numpy arrays instead of an NDArray.
 
-    Kept around because it is the only device with dtypes other than float32,
-    which the finite-difference gradient checks need.
+    This is the portable default and the only backend with dtype support beyond
+    float32, which is useful for finite-difference checks.
     """
 
     def __repr__(self):
@@ -41,13 +41,9 @@ class NumpyDevice(Device):
         return numpy.ones(shape, dtype=dtype)
 
     def randn(self, *shape):
-        # note: numpy doesn't support types within standard random routines, and
-        # .astype("float32") does work if we're generating a singleton
         return numpy.random.randn(*shape)
 
     def rand(self, *shape):
-        # note: numpy doesn't support types within standard random routines, and
-        # .astype("float32") does work if we're generating a singleton
         return numpy.random.rand(*shape)
 
     def one_hot(self, n, i, dtype="float32"):
@@ -61,7 +57,7 @@ class NumpyDevice(Device):
 
 
 def numpy_device():
-    """Return the numpy device"""
+    """Return a device backed by NumPy arrays."""
     return NumpyDevice()
 
 
@@ -86,5 +82,5 @@ def set_default_device(device):
 
 
 def all_devices():
-    """return a list of all available devices"""
+    """Return every known device, including optional disabled backends."""
     return [numpy_device()] + all_backend_devices()

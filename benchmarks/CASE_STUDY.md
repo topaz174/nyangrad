@@ -35,7 +35,7 @@ lands near 5 ms. It reports the median of many samples rather than the mean, bec
 distributions have a long right tail, and it records p10, p90 and the interquartile range
 so the spread is visible instead of hidden.
 
-Three bugs I had to fix along the way, each of which had produced a believable-looking but
+There were 3 main bugs I had to fix along the way, each of which had produced a believable-looking but
 wrong result:
 
 1. **My calibration run was the cold run.** I used the first timed repetition both to size
