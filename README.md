@@ -1,4 +1,8 @@
-# nyangrad
+<p align="center">
+  <img src="assets/nyangrad-logo.jpeg" width="180" alt="nyangrad logo">
+</p>
+
+<h1 align="center">nyangrad</h1>
 
 nyangrad is a PyTorch-style deep learning framework I built from scratch. It started with
 [CMU 10-414/714: Deep Learning Systems](https://dlsyscourse.org/) (Graduate level systems course) 
