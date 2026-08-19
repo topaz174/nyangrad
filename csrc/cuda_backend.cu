@@ -14,8 +14,8 @@ namespace cuda {
 #define TILE 4
 
 #define V TILE
-#define L 64   // (sqrt(256) * 4)
-#define S 4    // Or whatever reduction slice size you choose
+#define L 64
+#define S 4
 
 typedef float scalar_t;
 const size_t ELEM_SIZE = sizeof(scalar_t);

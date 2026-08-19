@@ -25,3 +25,5 @@ coverage.xml
 # course materials kept locally for reference, not published
 sandbox/course-materials/
 sandbox/warmup/data/
+
+test.py
