@@ -6,13 +6,13 @@ import nyangrad.nn as nn
 np.random.seed(0)
 
 
-def ResidualBlock(dim, hidden_dim, norm=nn.BatchNorm1d, drop_prob=0.1):
-    lin_1 = nn.Linear(dim, hidden_dim)
-    norm_1 = norm(hidden_dim)
+def ResidualBlock(dim, hidden_dim, norm=nn.BatchNorm1d, drop_prob=0.1, device=None):
+    lin_1 = nn.Linear(dim, hidden_dim, device=device)
+    norm_1 = norm(hidden_dim, device=device)
     relu_1 = nn.ReLU()
     dropout = nn.Dropout(drop_prob)
-    lin_2 = nn.Linear(hidden_dim, dim)
-    norm_2 = norm(dim)
+    lin_2 = nn.Linear(hidden_dim, dim, device=device)
+    norm_2 = norm(dim, device=device)
 
     seq = nn.Sequential(lin_1, norm_1, relu_1, dropout, lin_2, norm_2)
 
@@ -28,22 +28,25 @@ def MLPResNet(
     num_classes=10,
     norm=nn.BatchNorm1d,
     drop_prob=0.1,
+    device=None,
 ):
-    lin_1 = nn.Linear(dim, hidden_dim)
+    lin_1 = nn.Linear(dim, hidden_dim, device=device)
     relu_1 = nn.ReLU()
 
     seq_list = [lin_1, relu_1]
     
     for _ in range(num_blocks):
-        seq_list.append(ResidualBlock(hidden_dim, hidden_dim // 2, norm=norm, drop_prob=drop_prob))
+        seq_list.append(
+            ResidualBlock(hidden_dim, hidden_dim // 2, norm=norm, drop_prob=drop_prob, device=device)
+        )
     
-    lin_2 = nn.Linear(hidden_dim, num_classes)
+    lin_2 = nn.Linear(hidden_dim, num_classes, device=device)
     seq_list.append(lin_2)
 
     return nn.Sequential(*seq_list)
 
 
-def epoch(dataloader, model, opt=None):
+def epoch(dataloader, model, opt=None, device=None):
     np.random.seed(4)
 
     smloss = nn.SoftmaxLoss()
@@ -57,6 +60,9 @@ def epoch(dataloader, model, opt=None):
         model.eval()
 
     for X, y in dataloader:
+        if device is not None:
+            X, y = X.to(device), y.to(device)
+
         X = X.reshape((X.shape[0], -1))
         logits = model(X)
 
@@ -84,6 +90,7 @@ def train_mnist(
     weight_decay=0.001,
     hidden_dim=100,
     data_dir="data",
+    device=None,
 ):
     np.random.seed(4)
     train_dset = nyan.data.MNISTDataset(f"{data_dir}/train-images-idx3-ubyte.gz", 
@@ -91,7 +98,7 @@ def train_mnist(
     test_dset = nyan.data.MNISTDataset(f"{data_dir}/t10k-images-idx3-ubyte.gz",
                             f"{data_dir}/t10k-labels-idx1-ubyte.gz")
 
-    resnet = MLPResNet(28 * 28, hidden_dim=hidden_dim, num_classes=10)
+    resnet = MLPResNet(28 * 28, hidden_dim=hidden_dim, num_classes=10, device=device)
 
     opt = optimizer(resnet.parameters(), lr=lr, weight_decay=weight_decay)
 
@@ -99,9 +106,9 @@ def train_mnist(
     test_dloader = nyan.data.DataLoader(test_dset, batch_size=batch_size)
 
     for _ in range(epochs):
-        train_err, train_loss = epoch(train_dloader, resnet, opt)
+        train_err, train_loss = epoch(train_dloader, resnet, opt, device=device)
 
-    test_err, test_loss = epoch(test_dloader, resnet, None)
+    test_err, test_loss = epoch(test_dloader, resnet, None, device=device)
 
     return train_err, train_loss, test_err, test_loss
 

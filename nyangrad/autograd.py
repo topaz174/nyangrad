@@ -1,7 +1,17 @@
 """Core data structures: the computational graph and reverse-mode autodiff engine."""
 import nyangrad
-from .backend import Device, cpu, all_devices
-from typing import List, Optional, NamedTuple, Tuple, Union, Dict
+from .backend import (
+    Device,
+    all_devices,
+    cpu,
+    cpu_numpy,
+    cuda,
+    default_device,
+    numpy_device,
+    set_default_device,
+)
+from .ndarray import NDArray as _StridedArray
+from typing import Any, List, Optional, NamedTuple, Tuple, Union, Dict
 from collections import namedtuple
 import numpy
 
@@ -11,7 +21,9 @@ LAZY_MODE = False
 TENSOR_COUNTER = 0
 
 import numpy as array_api
-NDArray = numpy.ndarray
+
+# the raw array types an op's compute() can be handed
+NDArray = Union[numpy.ndarray, _StridedArray]
 
 
 class Op:
@@ -185,7 +197,7 @@ class Tensor(Value):
                     array.numpy(), device=device, dtype=dtype
                 )
         else:
-            device = device if device else cpu()
+            device = device if device else default_device()
             cached_data = Tensor._array_from_numpy(array, device=device, dtype=dtype)
 
         self._init(
@@ -197,9 +209,7 @@ class Tensor(Value):
 
     @staticmethod
     def _array_from_numpy(numpy_array, device, dtype):
-        if array_api is numpy:
-            return numpy.array(numpy_array, dtype=dtype)
-        return array_api.array(numpy_array, device=device, dtype=dtype)
+        return device.array(numpy_array, dtype=dtype)
 
     @staticmethod
     def make_from_op(op: Op, inputs: List["Value"]):
@@ -252,10 +262,16 @@ class Tensor(Value):
     @property
     def device(self):
         data = self.realize_cached_data()
-        # numpy array always sits on cpu
-        if array_api is numpy:
-            return cpu()
-        return data.device
+        # numpy arrays and scalars carry no device of their own
+        if isinstance(data, _StridedArray):
+            return data.device
+        return numpy_device()
+
+    def to(self, device: Device) -> "Tensor":
+        """Return a copy of this tensor on another device."""
+        if device == self.device:
+            return self
+        return Tensor(self.numpy(), device=device, requires_grad=self.requires_grad)
 
     def backward(self, out_grad=None):
         out_grad = (
@@ -273,9 +289,9 @@ class Tensor(Value):
 
     def numpy(self):
         data = self.realize_cached_data()
-        if array_api is numpy:
-            return numpy.array(data)
-        return data.numpy()
+        if isinstance(data, _StridedArray):
+            return data.numpy()
+        return numpy.array(data)
 
     def __add__(self, other):
         if isinstance(other, Tensor):
