@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/nyangrad-logo.jpeg" width="180" alt="nyangrad logo">
+  <img src="assets/nyangrad-logo.png" width="145" alt="nyangrad logo">
 </p>
 
 <h1 align="center">nyangrad</h1>
