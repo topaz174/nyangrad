@@ -47,22 +47,6 @@ and CUDA extensions own the actual storage and kernels. Calling `backward()`
 topologically sorts the graph, walks it in reverse, sums every incoming gradient,
 then builds the input gradients out of ordinary Tensor ops.
 
-## Working notes
-
-A lot of this started out on one very large scratchpad. I used it to work
-through reverse-mode autodiff, broadcasting and matrix gradients, graph
-traversal, strided indexing, and the convolution shapes before turning those
-pieces into code. It is a little chaotic, but that is more or less what the
-framework looked like in my head while I was building it.
-
-<p align="center">
-  <a href="assets/development-scratchpad.png">
-    <img src="assets/development-scratchpad.png" width="100%" alt="Handwritten development notes for nyangrad, covering autodiff, tensor operations, striding, and convolutions">
-  </a>
-</p>
-
-Click the image for the full-resolution version.
-
 ## Benchmarks
 
 I wanted the benchmarks to explain the framework, not just give it one flattering
@@ -192,6 +176,23 @@ The suite checks analytical gradients against numerical ones, exact layer and
 optimizer behavior, train/eval state, view aliasing and compaction, CPU/CUDA
 agreement, graph lifetime, and small models that actually train down in loss.
 The benchmark suite has separate preflight checks before it records performance.
+
+
+## Working notes
+
+A lot of this started out on one very large scratchpad. I used it to work
+through reverse-mode autodiff, broadcasting and matrix gradients, graph
+traversal, strided indexing, and the convolution shapes before turning those
+pieces into code. It is a little chaotic, but that is more or less what the
+framework looked like in my head while I was building it.
+
+<p align="center">
+  <a href="assets/development-scratchpad.png">
+    <img src="assets/development-scratchpad.png" width="100%" alt="Handwritten development notes for nyangrad, covering autodiff, tensor operations, striding, and convolutions">
+  </a>
+</p>
+
+Click the image for the full-resolution version.
 
 ## Repo map
 
